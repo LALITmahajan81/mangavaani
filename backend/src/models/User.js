@@ -1,55 +1,67 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: [true, 'Username is required'],
+    required: true,
     unique: true,
     trim: true,
-    minlength: [3, 'Username must be at least 3 characters']
+    minlength: 3
   },
   email: {
     type: String,
-    required: [true, 'Email is required'],
+    required: true,
     unique: true,
     trim: true,
     lowercase: true,
-    validate: {
-      validator: validator.isEmail,
-      message: 'Please provide a valid email'
+    validate(value) {
+      if (!validator.isEmail(value)) {
+        throw new Error('Email is invalid');
+      }
     }
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters'],
-    select: false
+    required: true,
+    minlength: 6,
+    trim: true
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+  favorites: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Manga'
+  }],
+  readingHistory: [{
+    manga: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Manga'
+    },
+    chapter: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Chapter'
+    },
+    lastRead: {
+      type: Date,
+      default: Date.now
+    }
+  }]
+}, {
+  timestamps: true
 });
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
-  // Only hash the password if it's modified (or new)
-  if (!this.isModified('password')) return next();
-  
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
+  const user = this;
+  if (user.isModified('password')) {
+    user.password = await bcrypt.hash(user.password, 8);
   }
+  next();
 });
 
-// Method to check if password is correct
+// Method to compare password
 userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
 const User = mongoose.model('User', userSchema);

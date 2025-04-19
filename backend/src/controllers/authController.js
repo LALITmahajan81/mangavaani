@@ -1,46 +1,77 @@
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
-// Register a new user
-exports.register = async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
+const generateToken = (userId) => {
+    return jwt.sign({ _id: userId }, process.env.JWT_SECRET, {
+        expiresIn: '7d'
+    });
+};
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: existingUser.email === email 
-          ? 'Email already in use' 
-          : 'Username already taken'
-      });
+const register = async (req, res) => {
+    try {
+        const { username, email, password } = req.body;
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+        if (existingUser) {
+            return res.status(400).json({ error: 'User already exists' });
+        }
+
+        // Create new user
+        const user = new User({
+            username,
+            email,
+            password
+        });
+
+        await user.save();
+        const token = generateToken(user._id);
+
+        res.status(201).json({
+            user: {
+                _id: user._id,
+                username: user.username,
+                email: user.email
+            },
+            token
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
+};
 
-    // Create new user
-    const user = new User({
-      username,
-      email,
-      password
-    });
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-    // Save user to database
-    await user.save();
+        // Find user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid login credentials' });
+        }
 
-    // Return success response (without password)
-    res.status(201).json({
-      success: true,
-      message: 'User registered successfully',
-      data: {
-        id: user._id,
-        username: user.username,
-        email: user.email
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error registering user',
-      error: error.message
-    });
-  }
+        // Check password
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Invalid login credentials' });
+        }
+
+        const token = generateToken(user._id);
+
+        res.json({
+            user: {
+                _id: user._id,
+                username: user.username,
+                email: user.email
+            },
+            token
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+module.exports = {
+    register,
+    login
 }; 
