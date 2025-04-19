@@ -1,6 +1,6 @@
 // Initial state
 const initialState = {
-    theme: "dark", // Always dark mode now
+    theme: "dark", // Always dark mode
     readingMode: "rightToLeft", // rightToLeft, leftToRight, vertical
     fontSize: "medium",
     notifications: true,
@@ -46,7 +46,10 @@ const settingsReducer = (state = initialState, action) => {
                 autoUpdateChapters: !state.autoUpdateChapters,
             };
         default:
-            return state;
+            return {
+                ...state,
+                theme: "dark", // Always enforce dark theme regardless of action
+            };
     }
 };
 

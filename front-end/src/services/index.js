@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware, combineReducers } from "redux";
-import { thunk } from "redux-thunk";
+import thunk from "redux-thunk";
 
 // Import reducers
 import mangaReducer from "./reducers/mangaReducer";

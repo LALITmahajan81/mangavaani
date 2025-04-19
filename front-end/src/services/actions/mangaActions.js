@@ -1,41 +1,78 @@
-import { MANGA_TYPES } from "../reducers/mangaReducer";
+import { MANGA_TYPES } from "../constants/actionTypes";
 import { mangaAPI } from "../api";
 
-// Get popular manga
-export const fetchPopularManga = () => async (dispatch) => {
-    dispatch({ type: MANGA_TYPES.FETCH_POPULAR_REQUEST });
+// Action Types
+export const FETCH_MANGA_LIST_REQUEST = "FETCH_MANGA_LIST_REQUEST";
+export const FETCH_MANGA_LIST_SUCCESS = "FETCH_MANGA_LIST_SUCCESS";
+export const FETCH_MANGA_LIST_FAILURE = "FETCH_MANGA_LIST_FAILURE";
 
+export const FETCH_MANGA_DETAILS_REQUEST = "FETCH_MANGA_DETAILS_REQUEST";
+export const FETCH_MANGA_DETAILS_SUCCESS = "FETCH_MANGA_DETAILS_SUCCESS";
+export const FETCH_MANGA_DETAILS_FAILURE = "FETCH_MANGA_DETAILS_FAILURE";
+
+// Action Creators
+export const fetchMangaList = (params) => async (dispatch) => {
     try {
-        const response = await mangaAPI.getPopularManga();
+        dispatch({ type: MANGA_TYPES.FETCH_MANGA_LIST_REQUEST });
+
+        const response = await mangaAPI.getMangaList(params);
+        const mangaList = response.data.mangaList || [];
+
         dispatch({
-            type: MANGA_TYPES.FETCH_POPULAR_SUCCESS,
-            payload: response.data,
+            type: MANGA_TYPES.FETCH_MANGA_LIST_SUCCESS,
+            payload: mangaList,
         });
     } catch (error) {
+        console.error("Error fetching manga list:", error);
         dispatch({
-            type: MANGA_TYPES.FETCH_POPULAR_FAILURE,
-            payload: error.message,
+            type: MANGA_TYPES.FETCH_MANGA_LIST_FAILURE,
+            payload: error.message || "Something went wrong",
         });
     }
 };
 
-// Get manga details
+// Fetch recently added manga
+export const fetchRecentManga = () => async (dispatch) => {
+    try {
+        dispatch({ type: MANGA_TYPES.FETCH_RECENT_REQUEST });
+
+        const response = await mangaAPI.getMangaList({ type: "recent" });
+        const recentManga = response.data.mangaList || [];
+
+        dispatch({
+            type: MANGA_TYPES.FETCH_RECENT_SUCCESS,
+            payload: recentManga,
+        });
+    } catch (error) {
+        console.error("Error fetching recent manga:", error);
+        dispatch({
+            type: MANGA_TYPES.FETCH_RECENT_FAILURE,
+            payload: error.message || "Failed to load recent manga",
+        });
+    }
+};
+
 export const fetchMangaDetails = (id) => async (dispatch) => {
-    dispatch({ type: MANGA_TYPES.FETCH_DETAILS_REQUEST });
-
     try {
+        dispatch({ type: MANGA_TYPES.FETCH_MANGA_DETAILS_REQUEST });
+
         const response = await mangaAPI.getMangaDetails(id);
+
         dispatch({
-            type: MANGA_TYPES.FETCH_DETAILS_SUCCESS,
+            type: MANGA_TYPES.FETCH_MANGA_DETAILS_SUCCESS,
             payload: response.data,
         });
     } catch (error) {
+        console.error("Error fetching manga details:", error);
         dispatch({
-            type: MANGA_TYPES.FETCH_DETAILS_FAILURE,
-            payload: error.message,
+            type: MANGA_TYPES.FETCH_MANGA_DETAILS_FAILURE,
+            payload: error.message || "Something went wrong",
         });
     }
 };
+
+// Legacy function for backward compatibility
+export const fetchPopularManga = () => fetchMangaList({ type: "popular" });
 
 // Get manga chapters
 export const fetchMangaChapters = (id) => async (dispatch) => {
@@ -43,14 +80,17 @@ export const fetchMangaChapters = (id) => async (dispatch) => {
 
     try {
         const response = await mangaAPI.getMangaChapters(id);
+        const chapters = response.data.chapters || [];
+
         dispatch({
             type: MANGA_TYPES.FETCH_CHAPTERS_SUCCESS,
-            payload: response.data,
+            payload: chapters,
         });
     } catch (error) {
+        console.error("Error fetching chapters:", error);
         dispatch({
             type: MANGA_TYPES.FETCH_CHAPTERS_FAILURE,
-            payload: error.message,
+            payload: error.message || "Failed to load chapters",
         });
     }
 };
@@ -60,15 +100,18 @@ export const fetchChapterDetails = (mangaId, chapterId) => async (dispatch) => {
     dispatch({ type: MANGA_TYPES.FETCH_CHAPTER_REQUEST });
 
     try {
-        const response = await mangaAPI.getChapterDetails(mangaId, chapterId);
+        const response = await mangaAPI.getChapterImages(chapterId);
+        const chapterData = response.data;
+
         dispatch({
             type: MANGA_TYPES.FETCH_CHAPTER_SUCCESS,
-            payload: response.data,
+            payload: chapterData,
         });
     } catch (error) {
+        console.error("Error fetching chapter details:", error);
         dispatch({
             type: MANGA_TYPES.FETCH_CHAPTER_FAILURE,
-            payload: error.message,
+            payload: error.message || "Failed to load chapter",
         });
     }
 };
@@ -79,14 +122,17 @@ export const searchManga = (query) => async (dispatch) => {
 
     try {
         const response = await mangaAPI.searchManga(query);
+        const results = response.data.results || [];
+
         dispatch({
             type: MANGA_TYPES.SEARCH_SUCCESS,
-            payload: response.data,
+            payload: results,
         });
     } catch (error) {
+        console.error("Error searching manga:", error);
         dispatch({
             type: MANGA_TYPES.SEARCH_FAILURE,
-            payload: error.message,
+            payload: error.message || "Search failed",
         });
     }
 };
