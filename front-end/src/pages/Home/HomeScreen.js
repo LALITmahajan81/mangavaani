@@ -88,14 +88,14 @@ const HomeScreen = ({ navigation }) => {
                 {/* Header */}
                 <View style={styles.header}>
                     <View>
-                        <Text style={styles.greeting}>Hello, {user?.name || "Reader"}!</Text>
+                        <Text style={styles.greeting}>Hello, {user && typeof user === "object" ? user.name : "Reader"}!</Text>
                         <Text style={styles.subGreeting}>What would you like to read today?</Text>
                     </View>
                     <TouchableOpacity style={styles.profileButton}>
                         <Ionicons
                             name="person-circle"
                             size={40}
-                            color="#6C63FF"
+                            color="#007AFF"
                         />
                     </TouchableOpacity>
                 </View>

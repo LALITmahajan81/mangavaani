@@ -40,7 +40,7 @@ const RegisterScreen = ({ navigation }) => {
 
     const handleRegister = () => {
         if (validateForm()) {
-            dispatch(register({ name, email, password }));
+            dispatch(register(name, email, password));
         }
     };
 

@@ -22,9 +22,9 @@ const RootNavigator = () => {
         dispatch(loadSettings());
     }, [dispatch]);
 
-    // If still checking auth state, you could show a splash screen here
+    // If still checking auth state, you could show a loading indicator
     if (loading) {
-        return null; // Or return a splash screen
+        return null; // Expo will show the splash screen during this time
     }
 
     return <NavigationContainer>{isAuthenticated ? <AppNavigator /> : <AuthNavigator />}</NavigationContainer>;
