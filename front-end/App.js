@@ -5,7 +5,6 @@ import { useState } from 'react';
 
 export default function App() {
     const [showText, setShowText] = useState(false);
-
     const handleLogoComplete = () => {
         setShowText(true);
     };
@@ -24,7 +23,7 @@ export default function App() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: "#000",
         alignItems: "center",
         justifyContent: "center",
     },
@@ -32,5 +31,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         fontSize: 16,
         textAlign: 'center',
+        color: "white",
     },
 });
