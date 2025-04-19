@@ -8,57 +8,16 @@ import { Ionicons } from "@expo/vector-icons";
 import MangaCard from "../../components/common/MangaCard";
 
 // Actions
-import { fetchPopularManga } from "../../services/actions/mangaActions";
-
-// Mock data for the UI
-const mockContinueReading = [
-    {
-        id: "1",
-        title: "One Piece",
-        coverImage: "https://via.placeholder.com/150x200",
-        currentChapter: "Chapter 1052",
-        progress: 0.75,
-    },
-    {
-        id: "2",
-        title: "Demon Slayer",
-        coverImage: "https://via.placeholder.com/150x200",
-        currentChapter: "Chapter 205",
-        progress: 0.2,
-    },
-];
-
-const mockRecentlyAdded = [
-    {
-        id: "3",
-        title: "My Hero Academia",
-        coverImage: "https://via.placeholder.com/150x200",
-        author: "Kohei Horikoshi",
-        rating: "4.8",
-    },
-    {
-        id: "4",
-        title: "Jujutsu Kaisen",
-        coverImage: "https://via.placeholder.com/150x200",
-        author: "Gege Akutami",
-        rating: "4.7",
-    },
-    {
-        id: "5",
-        title: "Chainsaw Man",
-        coverImage: "https://via.placeholder.com/150x200",
-        author: "Tatsuki Fujimoto",
-        rating: "4.9",
-    },
-];
+import { fetchMangaList, fetchRecentManga } from "../../services/actions/mangaActions";
 
 const HomeScreen = ({ navigation }) => {
     const dispatch = useDispatch();
-    const { popular, loading, error } = useSelector((state) => state.manga);
+    const { mangaList, recentManga, loading, error, recentLoading, recentError, bookmarks } = useSelector((state) => state.manga);
     const user = useSelector((state) => state.auth.user);
 
     useEffect(() => {
-        dispatch(fetchPopularManga());
+        dispatch(fetchMangaList({ type: "popular" }));
+        dispatch(fetchRecentManga());
     }, [dispatch]);
 
     const renderContinueReadingItem = ({ item }) => (
@@ -66,21 +25,53 @@ const HomeScreen = ({ navigation }) => {
             style={styles.continueReadingItem}
             onPress={() =>
                 navigation.navigate("MangaStack", {
-                    screen: "MangaDetails",
-                    params: { id: item.id, title: item.title },
+                    screen: "MangaDetail",
+                    params: { mangaId: item.id, title: item.title },
                 })
             }
         >
             <MangaCard
-                manga={item}
+                manga={{
+                    ...item,
+                    coverImage: item.image, // Map image property to coverImage for the MangaCard
+                }}
                 size="small"
             />
             <View style={styles.progressContainer}>
-                <View style={[styles.progressBar, { width: `${item.progress * 100}%` }]} />
+                <View style={[styles.progressBar, { width: `${item.progress || 50}%` }]} />
             </View>
-            <Text style={styles.chapterText}>{item.currentChapter}</Text>
+            <Text style={styles.chapterText}>{item.chapter || "Chapter 1"}</Text>
         </TouchableOpacity>
     );
+
+    const handleMangaPress = (manga) => {
+        navigation.navigate("MangaStack", {
+            screen: "MangaDetail",
+            params: { mangaId: manga.id, title: manga.title },
+        });
+    };
+
+    const renderMangaItem = ({ item }) => (
+        <TouchableOpacity onPress={() => handleMangaPress(item)}>
+            <MangaCard
+                manga={{
+                    ...item,
+                    coverImage: item.image, // Map image property to coverImage for the MangaCard
+                    author: item.author || "Unknown Author",
+                    rating: item.view || "0",
+                }}
+            />
+        </TouchableOpacity>
+    );
+
+    // Use the first few bookmarks or mangaList as continue reading
+    const continueReadingData =
+        bookmarks.length > 0
+            ? bookmarks.slice(0, 3)
+            : mangaList.slice(0, 3).map((manga) => ({
+                  ...manga,
+                  progress: Math.random() * 100, // Random progress for demo
+              }));
 
     return (
         <SafeAreaView style={styles.container}>
@@ -109,62 +100,92 @@ const HomeScreen = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
 
-                    <FlatList
-                        data={mockContinueReading}
-                        renderItem={renderContinueReadingItem}
-                        keyExtractor={(item) => item.id}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.continueReadingList}
-                    />
+                    {loading ? (
+                        <View style={styles.loadingContainer}>
+                            <Text style={styles.loadingText}>Loading...</Text>
+                        </View>
+                    ) : (
+                        <FlatList
+                            data={continueReadingData}
+                            renderItem={renderContinueReadingItem}
+                            keyExtractor={(item) => item.id}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.continueReadingList}
+                        />
+                    )}
                 </View>
 
-                {/* Popular Manga */}
+                {/* Manga List from API */}
                 <View style={styles.sectionContainer}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Popular Manga</Text>
-                        <TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() =>
+                                navigation.navigate("MangaStack", {
+                                    screen: "MangaList",
+                                    params: { listType: "popular" },
+                                })
+                            }
+                        >
                             <Text style={styles.seeAllText}>See All</Text>
                         </TouchableOpacity>
                     </View>
 
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                    >
-                        <View style={styles.mangaRow}>
-                            {(popular.length > 0 ? popular : mockRecentlyAdded).map((manga) => (
-                                <MangaCard
-                                    key={manga.id}
-                                    manga={manga}
-                                />
-                            ))}
+                    {loading ? (
+                        <View style={styles.loadingContainer}>
+                            <Text style={styles.loadingText}>Loading manga...</Text>
                         </View>
-                    </ScrollView>
+                    ) : error ? (
+                        <View style={styles.errorContainer}>
+                            <Text style={styles.errorText}>{error}</Text>
+                        </View>
+                    ) : (
+                        <FlatList
+                            data={mangaList.slice(0, 6)}
+                            renderItem={renderMangaItem}
+                            keyExtractor={(item) => item.id}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.mangaListContainer}
+                        />
+                    )}
                 </View>
 
                 {/* Recently Added */}
                 <View style={styles.sectionContainer}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Recently Added</Text>
-                        <TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() =>
+                                navigation.navigate("MangaStack", {
+                                    screen: "MangaList",
+                                    params: { listType: "recent" },
+                                })
+                            }
+                        >
                             <Text style={styles.seeAllText}>See All</Text>
                         </TouchableOpacity>
                     </View>
 
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                    >
-                        <View style={styles.mangaRow}>
-                            {mockRecentlyAdded.map((manga) => (
-                                <MangaCard
-                                    key={manga.id}
-                                    manga={manga}
-                                />
-                            ))}
+                    {recentLoading ? (
+                        <View style={styles.loadingContainer}>
+                            <Text style={styles.loadingText}>Loading recent manga...</Text>
                         </View>
-                    </ScrollView>
+                    ) : recentError ? (
+                        <View style={styles.errorContainer}>
+                            <Text style={styles.errorText}>{recentError}</Text>
+                        </View>
+                    ) : (
+                        <FlatList
+                            data={recentManga.slice(0, 6)}
+                            renderItem={renderMangaItem}
+                            keyExtractor={(item) => item.id}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.mangaListContainer}
+                        />
+                    )}
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -224,30 +245,49 @@ const styles = StyleSheet.create({
         color: "#007AFF",
     },
     continueReadingList: {
-        paddingRight: 16,
+        paddingBottom: 8,
     },
     continueReadingItem: {
         marginRight: 16,
         width: 150,
     },
     progressContainer: {
-        height: 4,
+        height: 3,
         backgroundColor: "#333333",
-        borderRadius: 2,
+        borderRadius: 1.5,
         marginTop: 8,
         marginBottom: 4,
     },
     progressBar: {
-        height: "100%",
+        height: 3,
         backgroundColor: "#007AFF",
-        borderRadius: 2,
+        borderRadius: 1.5,
     },
     chapterText: {
         fontSize: 12,
         color: "#BDBDBD",
+        textAlign: "center",
     },
-    mangaRow: {
-        flexDirection: "row",
+    mangaListContainer: {
+        paddingBottom: 8,
+    },
+    loadingContainer: {
+        padding: 20,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    loadingText: {
+        color: "#FFFFFF",
+        fontSize: 14,
+    },
+    errorContainer: {
+        padding: 20,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    errorText: {
+        color: "#FF6B6B",
+        fontSize: 14,
     },
 });
 

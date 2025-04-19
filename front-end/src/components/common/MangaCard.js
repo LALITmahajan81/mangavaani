@@ -27,9 +27,9 @@ const MangaCard = ({ manga, size = "medium" }) => {
     // Navigate to manga details
     const handlePress = () => {
         navigation.navigate("MangaStack", {
-            screen: "MangaDetails",
+            screen: "MangaDetail",
             params: {
-                id: manga.id,
+                mangaId: manga.id,
                 title: manga.title,
             },
         });

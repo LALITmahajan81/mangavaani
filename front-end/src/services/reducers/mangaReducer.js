@@ -1,42 +1,93 @@
+import { MANGA_TYPES } from "../constants/actionTypes";
+
 // Initial state
 const initialState = {
-    popular: [],
-    details: null,
-    chapters: [],
-    currentChapter: null,
+    mangaList: [],
+    currentManga: null,
     loading: false,
     error: null,
+    popular: [],
+    recentManga: [],
+    recentLoading: false,
+    recentError: null,
+    details: null,
+    chapters: [],
+    chapterCount: 0,
+    currentChapter: null,
     searchResults: [],
     bookmarks: [],
     downloads: [],
 };
 
-// Action types
-export const MANGA_TYPES = {
-    FETCH_POPULAR_REQUEST: "FETCH_POPULAR_REQUEST",
-    FETCH_POPULAR_SUCCESS: "FETCH_POPULAR_SUCCESS",
-    FETCH_POPULAR_FAILURE: "FETCH_POPULAR_FAILURE",
-    FETCH_DETAILS_REQUEST: "FETCH_DETAILS_REQUEST",
-    FETCH_DETAILS_SUCCESS: "FETCH_DETAILS_SUCCESS",
-    FETCH_DETAILS_FAILURE: "FETCH_DETAILS_FAILURE",
-    FETCH_CHAPTERS_REQUEST: "FETCH_CHAPTERS_REQUEST",
-    FETCH_CHAPTERS_SUCCESS: "FETCH_CHAPTERS_SUCCESS",
-    FETCH_CHAPTERS_FAILURE: "FETCH_CHAPTERS_FAILURE",
-    FETCH_CHAPTER_REQUEST: "FETCH_CHAPTER_REQUEST",
-    FETCH_CHAPTER_SUCCESS: "FETCH_CHAPTER_SUCCESS",
-    FETCH_CHAPTER_FAILURE: "FETCH_CHAPTER_FAILURE",
-    SEARCH_REQUEST: "SEARCH_REQUEST",
-    SEARCH_SUCCESS: "SEARCH_SUCCESS",
-    SEARCH_FAILURE: "SEARCH_FAILURE",
-    ADD_BOOKMARK: "ADD_BOOKMARK",
-    REMOVE_BOOKMARK: "REMOVE_BOOKMARK",
-    ADD_DOWNLOAD: "ADD_DOWNLOAD",
-    REMOVE_DOWNLOAD: "REMOVE_DOWNLOAD",
-};
-
 // Reducer
 const mangaReducer = (state = initialState, action) => {
     switch (action.type) {
+        // Manga List actions
+        case MANGA_TYPES.FETCH_MANGA_LIST_REQUEST:
+            return {
+                ...state,
+                loading: true,
+                error: null,
+            };
+
+        case MANGA_TYPES.FETCH_MANGA_LIST_SUCCESS:
+            return {
+                ...state,
+                mangaList: action.payload,
+                loading: false,
+            };
+
+        case MANGA_TYPES.FETCH_MANGA_LIST_FAILURE:
+            return {
+                ...state,
+                loading: false,
+                error: action.payload,
+            };
+
+        // Recently Added Manga actions
+        case MANGA_TYPES.FETCH_RECENT_REQUEST:
+            return {
+                ...state,
+                recentLoading: true,
+                recentError: null,
+            };
+
+        case MANGA_TYPES.FETCH_RECENT_SUCCESS:
+            return {
+                ...state,
+                recentManga: action.payload,
+                recentLoading: false,
+            };
+
+        case MANGA_TYPES.FETCH_RECENT_FAILURE:
+            return {
+                ...state,
+                recentLoading: false,
+                recentError: action.payload,
+            };
+
+        // Manga Details actions
+        case MANGA_TYPES.FETCH_MANGA_DETAILS_REQUEST:
+            return {
+                ...state,
+                loading: true,
+                error: null,
+            };
+
+        case MANGA_TYPES.FETCH_MANGA_DETAILS_SUCCESS:
+            return {
+                ...state,
+                currentManga: action.payload,
+                loading: false,
+            };
+
+        case MANGA_TYPES.FETCH_MANGA_DETAILS_FAILURE:
+            return {
+                ...state,
+                loading: false,
+                error: action.payload,
+            };
+
         // Popular manga
         case MANGA_TYPES.FETCH_POPULAR_REQUEST:
             return {
@@ -57,26 +108,6 @@ const mangaReducer = (state = initialState, action) => {
                 error: action.payload,
             };
 
-        // Manga details
-        case MANGA_TYPES.FETCH_DETAILS_REQUEST:
-            return {
-                ...state,
-                loading: true,
-                error: null,
-            };
-        case MANGA_TYPES.FETCH_DETAILS_SUCCESS:
-            return {
-                ...state,
-                details: action.payload,
-                loading: false,
-            };
-        case MANGA_TYPES.FETCH_DETAILS_FAILURE:
-            return {
-                ...state,
-                loading: false,
-                error: action.payload,
-            };
-
         // Manga chapters
         case MANGA_TYPES.FETCH_CHAPTERS_REQUEST:
             return {
@@ -87,7 +118,8 @@ const mangaReducer = (state = initialState, action) => {
         case MANGA_TYPES.FETCH_CHAPTERS_SUCCESS:
             return {
                 ...state,
-                chapters: action.payload,
+                chapters: action.payload.chapters || action.payload,
+                chapterCount: action.payload.chapterCount || (action.payload.chapters ? action.payload.chapters.length : 0),
                 loading: false,
             };
         case MANGA_TYPES.FETCH_CHAPTERS_FAILURE:
