@@ -10,7 +10,14 @@ import { fetchMangaDetails, fetchMangaChapters, addBookmark, removeBookmark } fr
 const MangaDetailScreen = ({ route, navigation }) => {
     const { mangaId, title } = route.params;
     const dispatch = useDispatch();
-    const { currentManga, chapters, loading, error, bookmarks } = useSelector((state) => state.manga);
+    const { currentManga, chapters, chapterCount, loading, error, bookmarks } = useSelector((state) => state.manga);
+
+    // Chapter pagination state
+    const [visibleChapters, setVisibleChapters] = useState([]);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const chaptersPerPage = 10;
+    const [sortOrder, setSortOrder] = useState("desc"); // "desc" (newest first) or "asc" (oldest first)
 
     // Check if manga is bookmarked
     const isBookmarked = bookmarks.some((bookmark) => bookmark.id === mangaId);
@@ -25,6 +32,40 @@ const MangaDetailScreen = ({ route, navigation }) => {
         dispatch(fetchMangaDetails(mangaId));
         dispatch(fetchMangaChapters(mangaId));
     }, [dispatch, mangaId, navigation, title]);
+
+    // Update visible chapters when chapters data changes or page changes
+    useEffect(() => {
+        if (chapters && chapters.length > 0) {
+            // Sort chapters based on current sort order
+            const sortedChapters = [...chapters].sort((a, b) => {
+                const numA = parseInt(a.number) || 0;
+                const numB = parseInt(b.number) || 0;
+                return sortOrder === "desc" ? numB - numA : numA - numB;
+            });
+
+            // Get subset of chapters based on current page
+            const endIndex = page * chaptersPerPage;
+            const newVisibleChapters = sortedChapters.slice(0, endIndex);
+
+            // Check if we've reached the end
+            setHasMore(endIndex < sortedChapters.length);
+
+            // Update visible chapters
+            setVisibleChapters(newVisibleChapters);
+        }
+    }, [chapters, page, sortOrder]);
+
+    const loadMoreChapters = () => {
+        if (hasMore) {
+            setPage((prevPage) => prevPage + 1);
+        }
+    };
+
+    const toggleSortOrder = () => {
+        setSortOrder((prevOrder) => (prevOrder === "desc" ? "asc" : "desc"));
+        // Reset pagination when changing sort order
+        setPage(1);
+    };
 
     const handleChapterPress = (chapterId) => {
         navigation.navigate("ChapterReader", {
@@ -110,6 +151,14 @@ const MangaDetailScreen = ({ route, navigation }) => {
                             <View style={styles.statusRow}>
                                 <Text style={styles.statusText}>{currentManga.status || "Unknown status"}</Text>
                             </View>
+                            <View style={styles.chapterCountRow}>
+                                <Ionicons
+                                    name="book-outline"
+                                    size={16}
+                                    color="#BDBDBD"
+                                />
+                                <Text style={styles.chapterCountText}>{chapterCount} chapters</Text>
+                            </View>
                         </View>
                     </View>
 
@@ -172,27 +221,71 @@ const MangaDetailScreen = ({ route, navigation }) => {
                     {/* Chapters */}
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
-                            <Text style={styles.sectionTitle}>Chapters</Text>
-                            <Text style={styles.chaptersCount}>{chapters.length} chapters</Text>
+                            <View style={styles.sectionTitleContainer}>
+                                <Text style={styles.sectionTitle}>Chapters</Text>
+                                <Text style={styles.chaptersCount}>
+                                    {visibleChapters.length} of {chapterCount}
+                                </Text>
+                            </View>
+
+                            {/* Sort order toggle button */}
+                            <TouchableOpacity
+                                style={styles.sortButton}
+                                onPress={toggleSortOrder}
+                            >
+                                <Ionicons
+                                    name={sortOrder === "desc" ? "arrow-down" : "arrow-up"}
+                                    size={16}
+                                    color="#FFFFFF"
+                                />
+                                <Text style={styles.sortButtonText}>{sortOrder === "desc" ? "Newest" : "Oldest"} First</Text>
+                            </TouchableOpacity>
                         </View>
 
-                        {chapters.length > 0 ? (
-                            chapters.map((chapter, index) => (
-                                <TouchableOpacity
-                                    key={chapter.id || index}
-                                    style={styles.chapterRow}
-                                    onPress={() => handleChapterPress(chapter.id)}
-                                >
-                                    <Text style={styles.chapterNumber}>{chapter.number || index + 1}</Text>
-                                    <Text style={styles.chapterTitle}>{chapter.title || `Chapter ${chapter.number || index + 1}`}</Text>
-                                    <Text style={styles.chapterDate}>{chapter.date || "Unknown"}</Text>
-                                    <Ionicons
-                                        name="chevron-forward"
-                                        size={18}
-                                        color="#BDBDBD"
-                                    />
-                                </TouchableOpacity>
-                            ))
+                        {visibleChapters.length > 0 ? (
+                            <>
+                                {/* Chapter list */}
+                                {visibleChapters.map((chapter, index) => (
+                                    <TouchableOpacity
+                                        key={chapter.id || index}
+                                        style={styles.chapterRow}
+                                        onPress={() => handleChapterPress(chapter.id)}
+                                    >
+                                        <Text style={styles.chapterNumber}>{chapter.number || index + 1}</Text>
+                                        <Text style={styles.chapterTitle}>{chapter.title || `Chapter ${chapter.number || index + 1}`}</Text>
+                                        <Text style={styles.chapterDate}>{chapter.date || "Unknown"}</Text>
+                                        <Ionicons
+                                            name="chevron-forward"
+                                            size={18}
+                                            color="#BDBDBD"
+                                        />
+                                    </TouchableOpacity>
+                                ))}
+
+                                {/* Load more button */}
+                                {hasMore && (
+                                    <TouchableOpacity
+                                        style={styles.loadMoreButton}
+                                        onPress={loadMoreChapters}
+                                    >
+                                        <Text style={styles.loadMoreText}>
+                                            Load More Chapters ({visibleChapters.length} of {chapterCount})
+                                        </Text>
+                                        <Ionicons
+                                            name="chevron-down"
+                                            size={16}
+                                            color="#007AFF"
+                                        />
+                                    </TouchableOpacity>
+                                )}
+
+                                {/* Loaded all chapters indicator */}
+                                {!hasMore && chapterCount > 10 && (
+                                    <View style={styles.allLoadedContainer}>
+                                        <Text style={styles.allLoadedText}>All {chapterCount} chapters loaded</Text>
+                                    </View>
+                                )}
+                            </>
                         ) : (
                             <Text style={styles.noChaptersText}>No chapters available.</Text>
                         )}
@@ -295,12 +388,21 @@ const styles = StyleSheet.create({
         color: "#BDBDBD",
     },
     statusRow: {
-        marginTop: 4,
+        marginBottom: 8,
     },
     statusText: {
         fontSize: 14,
         color: "#4CAF50",
         fontWeight: "bold",
+    },
+    chapterCountRow: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    chapterCountText: {
+        marginLeft: 8,
+        fontSize: 14,
+        color: "#BDBDBD",
     },
     actionsRow: {
         flexDirection: "row",
@@ -328,15 +430,31 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginBottom: 12,
     },
+    sectionTitleContainer: {
+        flexDirection: "column",
+    },
     sectionTitle: {
         fontSize: 18,
         fontWeight: "bold",
         color: "#FFFFFF",
-        marginBottom: 12,
+        marginBottom: 4,
     },
     chaptersCount: {
         fontSize: 14,
         color: "#BDBDBD",
+    },
+    sortButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#333333",
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 16,
+    },
+    sortButtonText: {
+        fontSize: 12,
+        color: "#FFFFFF",
+        marginLeft: 4,
     },
     description: {
         fontSize: 14,
@@ -388,6 +506,34 @@ const styles = StyleSheet.create({
         fontStyle: "italic",
         textAlign: "center",
         marginTop: 12,
+    },
+    loadMoreButton: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 16,
+        paddingVertical: 12,
+        backgroundColor: "#2A2A2A",
+        borderRadius: 8,
+    },
+    loadMoreText: {
+        fontSize: 14,
+        color: "#007AFF",
+        marginRight: 8,
+    },
+    allLoadedContainer: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 16,
+        paddingVertical: 12,
+        backgroundColor: "#2A2A2A",
+        borderRadius: 8,
+    },
+    allLoadedText: {
+        fontSize: 14,
+        color: "#FFFFFF",
+        marginRight: 8,
     },
 });
 

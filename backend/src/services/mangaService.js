@@ -122,6 +122,104 @@ const DUMMY_CHAPTER_IMAGES = {
     ],
 };
 
+// Generate more chapter data for each manga
+const generateMoreChapters = (mangaId, baseChapters) => {
+    const allChapters = [...baseChapters];
+
+    // Generate additional 20 chapters for testing pagination
+    for (let i = baseChapters.length + 1; i <= baseChapters.length + 20; i++) {
+        allChapters.push({
+            id: `${mangaId}-chapter-${i}`,
+            title: `Chapter ${i}`,
+            number: i.toString(),
+            date:
+                "2023-" +
+                (Math.floor(Math.random() * 12) + 1).toString().padStart(2, "0") +
+                "-" +
+                (Math.floor(Math.random() * 28) + 1).toString().padStart(2, "0"),
+        });
+    }
+
+    return allChapters;
+};
+
+// Generate expanded chapter data for all manga
+const EXPANDED_CHAPTERS = {};
+Object.keys(DUMMY_CHAPTERS).forEach((mangaId) => {
+    EXPANDED_CHAPTERS[mangaId] = generateMoreChapters(mangaId, DUMMY_CHAPTERS[mangaId]);
+});
+
+// External API simulation for manga chapters
+const fetchExternalChapters = async (mangaId) => {
+    console.log(`Simulating external API call for manga ID ${mangaId}`);
+
+    // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    // Base chapters from our dummy data
+    const baseChapters = DUMMY_CHAPTERS[mangaId] || [];
+
+    // Generate a realistic number of chapters based on manga ID
+    // This simulates different mangas having different chapter counts
+    const mangaIdNum = parseInt(mangaId.replace(/\D/g, "")) || 1;
+    const seed = mangaIdNum * 17; // Use the manga ID as a seed for deterministic randomness
+
+    // Calculate chapter count: between 30-120 chapters depending on manga
+    const chapterCount = 30 + (seed % 90);
+
+    // Generate all chapters
+    const allChapters = [];
+
+    // Popular/long-running mangas have more chapters
+    for (let i = 1; i <= chapterCount; i++) {
+        // Create chapter with more realistic data
+        const releaseDate = new Date();
+        releaseDate.setDate(releaseDate.getDate() - i * 7); // Weekly release schedule
+
+        let chapterTitle;
+        if (i <= baseChapters.length && baseChapters[i - 1].title) {
+            // Use base title if available
+            chapterTitle = baseChapters[i - 1].title;
+        } else {
+            // Generate title based on chapter number
+            if (i % 10 === 0) {
+                // Special title for milestone chapters
+                chapterTitle = `Milestone: Chapter ${i}`;
+            } else if (i % 5 === 0) {
+                // Semi-special titles
+                const titles = [
+                    "The Battle Begins",
+                    "Unexpected Turn",
+                    "New Power",
+                    "Dark Revelation",
+                    "The Promise",
+                    "Confrontation",
+                    "The Truth",
+                    "Lost and Found",
+                    "Revenge",
+                ];
+                chapterTitle = `${titles[i % titles.length]}: Chapter ${i}`;
+            } else {
+                // Regular chapters just have number
+                chapterTitle = `Chapter ${i}`;
+            }
+        }
+
+        allChapters.push({
+            id: `${mangaId}-chapter-${i}`,
+            title: chapterTitle,
+            number: i.toString(),
+            date: releaseDate.toISOString().split("T")[0],
+        });
+    }
+
+    // Sort chapters in descending order (newest first)
+    return allChapters.sort((a, b) => parseInt(b.number) - parseInt(a.number));
+};
+
+// Cache for chapters to prevent unnecessary "API calls"
+const chaptersCache = {};
+
 /**
  * Service for providing manga data
  */
@@ -204,13 +302,22 @@ const mangaService = {
      */
     getMangaChapters: async (id) => {
         console.log(`Fetching chapters for manga ID ${id}`);
-        const chapters = DUMMY_CHAPTERS[id];
 
-        if (!chapters) {
-            throw new Error(`Chapters for manga ID ${id} not found`);
+        // Check cache first
+        if (!chaptersCache[id]) {
+            try {
+                // Fetch from simulated external API
+                chaptersCache[id] = await fetchExternalChapters(id);
+            } catch (error) {
+                console.error(`Error fetching chapters for manga ID ${id}:`, error);
+                throw new Error(`Failed to fetch chapters: ${error.message}`);
+            }
         }
 
-        return { chapters };
+        return {
+            chapters: chaptersCache[id],
+            chapterCount: chaptersCache[id].length,
+        };
     },
 
     /**
