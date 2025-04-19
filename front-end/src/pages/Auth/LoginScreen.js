@@ -38,7 +38,7 @@ const LoginScreen = ({ navigation }) => {
                         <Ionicons
                             name="arrow-back"
                             size={24}
-                            color="#212121"
+                            color="#FFFFFF"
                         />
                     </TouchableOpacity>
 
@@ -54,12 +54,13 @@ const LoginScreen = ({ navigation }) => {
                             <Ionicons
                                 name="mail-outline"
                                 size={20}
-                                color="#757575"
+                                color="#BDBDBD"
                                 style={styles.inputIcon}
                             />
                             <TextInput
                                 style={styles.input}
                                 placeholder="Email"
+                                placeholderTextColor="#888888"
                                 keyboardType="email-address"
                                 autoCapitalize="none"
                                 value={email}
@@ -71,12 +72,13 @@ const LoginScreen = ({ navigation }) => {
                             <Ionicons
                                 name="lock-closed-outline"
                                 size={20}
-                                color="#757575"
+                                color="#BDBDBD"
                                 style={styles.inputIcon}
                             />
                             <TextInput
                                 style={[styles.input, styles.passwordInput]}
                                 placeholder="Password"
+                                placeholderTextColor="#888888"
                                 secureTextEntry={!showPassword}
                                 value={password}
                                 onChangeText={setPassword}
@@ -88,7 +90,7 @@ const LoginScreen = ({ navigation }) => {
                                 <Ionicons
                                     name={showPassword ? "eye-off-outline" : "eye-outline"}
                                     size={20}
-                                    color="#757575"
+                                    color="#BDBDBD"
                                 />
                             </TouchableOpacity>
                         </View>
@@ -120,7 +122,7 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#1E1E1E",
     },
     scrollContent: {
         flexGrow: 1,
@@ -139,12 +141,12 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: "bold",
-        color: "#212121",
+        color: "#FFFFFF",
         marginBottom: 8,
     },
     subtitle: {
         fontSize: 16,
-        color: "#757575",
+        color: "#BDBDBD",
     },
     formContainer: {
         width: "100%",
@@ -157,11 +159,12 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         borderWidth: 1,
-        borderColor: "#E0E0E0",
+        borderColor: "#333333",
         borderRadius: 8,
         marginBottom: 16,
         paddingHorizontal: 12,
         height: 56,
+        backgroundColor: "#252525",
     },
     inputIcon: {
         marginRight: 12,
@@ -170,7 +173,7 @@ const styles = StyleSheet.create({
         flex: 1,
         height: "100%",
         fontSize: 16,
-        color: "#212121",
+        color: "#FFFFFF",
     },
     passwordInput: {
         paddingRight: 40,
@@ -186,7 +189,7 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     forgotPasswordText: {
-        color: "#6C63FF",
+        color: "#007AFF",
         fontSize: 14,
     },
     loginButton: {
@@ -200,11 +203,11 @@ const styles = StyleSheet.create({
     },
     registerText: {
         fontSize: 14,
-        color: "#757575",
+        color: "#BDBDBD",
     },
     registerLink: {
         fontSize: 14,
-        color: "#6C63FF",
+        color: "#007AFF",
         fontWeight: "bold",
     },
 });

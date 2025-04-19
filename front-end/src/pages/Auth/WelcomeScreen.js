@@ -65,7 +65,7 @@ const WelcomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#1E1E1E",
     },
     content: {
         flex: 1,
@@ -80,12 +80,12 @@ const styles = StyleSheet.create({
     appName: {
         fontSize: 36,
         fontWeight: "bold",
-        color: "#6C63FF",
+        color: "#007AFF",
         marginBottom: 8,
     },
     tagline: {
         fontSize: 16,
-        color: "#757575",
+        color: "#BDBDBD",
         textAlign: "center",
         maxWidth: "80%",
     },
@@ -110,12 +110,12 @@ const styles = StyleSheet.create({
     featureTitle: {
         fontSize: 18,
         fontWeight: "bold",
-        color: "#212121",
+        color: "#FFFFFF",
         marginBottom: 4,
     },
     featureDescription: {
         fontSize: 14,
-        color: "#757575",
+        color: "#BDBDBD",
     },
     buttonContainer: {
         width: "100%",

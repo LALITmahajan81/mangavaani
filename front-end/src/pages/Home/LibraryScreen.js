@@ -171,22 +171,22 @@ const LibraryScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F5F5F5",
+        backgroundColor: "#1E1E1E",
     },
     header: {
         padding: 16,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#1E1E1E",
     },
     title: {
         fontSize: 20,
         fontWeight: "bold",
-        color: "#212121",
+        color: "#FFFFFF",
     },
     tabContainer: {
         flexDirection: "row",
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#1E1E1E",
         borderBottomWidth: 1,
-        borderColor: "#E0E0E0",
+        borderColor: "#333333",
     },
     tab: {
         flex: 1,
@@ -195,14 +195,14 @@ const styles = StyleSheet.create({
     },
     activeTab: {
         borderBottomWidth: 2,
-        borderColor: "#6C63FF",
+        borderColor: "#007AFF",
     },
     tabText: {
         fontSize: 14,
-        color: "#757575",
+        color: "#BDBDBD",
     },
     activeTabText: {
-        color: "#6C63FF",
+        color: "#007AFF",
         fontWeight: "bold",
     },
     listContent: {
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: 16,
-        color: "#757575",
+        color: "#BDBDBD",
         textAlign: "center",
         marginTop: 16,
     },
@@ -234,11 +234,11 @@ const styles = StyleSheet.create({
     lastReadText: {
         fontSize: 12,
         fontWeight: "bold",
-        color: "#212121",
+        color: "#FFFFFF",
     },
     readDateText: {
         fontSize: 12,
-        color: "#757575",
+        color: "#BDBDBD",
     },
 });
 

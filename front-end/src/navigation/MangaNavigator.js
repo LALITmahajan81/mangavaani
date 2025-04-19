@@ -15,7 +15,7 @@ const MangaNavigator = () => {
             screenOptions={{
                 headerShown: true,
                 headerStyle: {
-                    backgroundColor: "#6C63FF",
+                    backgroundColor: "#007AFF",
                 },
                 headerTintColor: "#FFFFFF",
                 headerTitleStyle: {

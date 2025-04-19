@@ -64,7 +64,12 @@ const HomeScreen = ({ navigation }) => {
     const renderContinueReadingItem = ({ item }) => (
         <TouchableOpacity
             style={styles.continueReadingItem}
-            onPress={() => navigation.navigate("MangaDetails", { id: item.id, title: item.title })}
+            onPress={() =>
+                navigation.navigate("MangaStack", {
+                    screen: "MangaDetails",
+                    params: { id: item.id, title: item.title },
+                })
+            }
         >
             <MangaCard
                 manga={item}
@@ -169,7 +174,7 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F5F5F5",
+        backgroundColor: "#1E1E1E",
     },
     scrollContent: {
         padding: 16,
@@ -183,11 +188,14 @@ const styles = StyleSheet.create({
     greeting: {
         fontSize: 24,
         fontWeight: "bold",
-        color: "#212121",
+        color: "#FFFFFF",
+        textShadowColor: "rgba(0, 0, 0, 0.75)",
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 10,
     },
     subGreeting: {
         fontSize: 16,
-        color: "#757575",
+        color: "#BDBDBD",
         marginTop: 4,
     },
     profileButton: {
@@ -209,34 +217,34 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 18,
         fontWeight: "bold",
-        color: "#212121",
+        color: "#FFFFFF",
     },
     seeAllText: {
         fontSize: 14,
-        color: "#6C63FF",
+        color: "#007AFF",
     },
     continueReadingList: {
         paddingRight: 16,
     },
     continueReadingItem: {
         marginRight: 16,
-        width: 120,
+        width: 150,
     },
     progressContainer: {
         height: 4,
-        backgroundColor: "#E0E0E0",
+        backgroundColor: "#333333",
         borderRadius: 2,
         marginTop: 8,
         marginBottom: 4,
     },
     progressBar: {
         height: "100%",
-        backgroundColor: "#6C63FF",
+        backgroundColor: "#007AFF",
         borderRadius: 2,
     },
     chapterText: {
         fontSize: 12,
-        color: "#757575",
+        color: "#BDBDBD",
     },
     mangaRow: {
         flexDirection: "row",

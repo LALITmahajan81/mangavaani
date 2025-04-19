@@ -24,14 +24,13 @@ const RegisterScreen = ({ navigation }) => {
 
     const validateForm = () => {
         const errors = {};
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!name) errors.name = "Name is required";
         if (!email) errors.email = "Email is required";
-        else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "Email is invalid";
-
+        else if (!emailRegex.test(email)) errors.email = "Email is invalid";
         if (!password) errors.password = "Password is required";
         else if (password.length < 6) errors.password = "Password must be at least 6 characters";
-
         if (!confirmPassword) errors.confirmPassword = "Please confirm your password";
         else if (password !== confirmPassword) errors.confirmPassword = "Passwords do not match";
 
@@ -41,7 +40,7 @@ const RegisterScreen = ({ navigation }) => {
 
     const handleRegister = () => {
         if (validateForm()) {
-            dispatch(register(name, email, password));
+            dispatch(register({ name, email, password }));
         }
     };
 
@@ -59,13 +58,13 @@ const RegisterScreen = ({ navigation }) => {
                         <Ionicons
                             name="arrow-back"
                             size={24}
-                            color="#212121"
+                            color="#FFFFFF"
                         />
                     </TouchableOpacity>
 
                     <View style={styles.header}>
                         <Text style={styles.title}>Create Account</Text>
-                        <Text style={styles.subtitle}>Sign up to enjoy a world of manga</Text>
+                        <Text style={styles.subtitle}>Sign up to access all features</Text>
                     </View>
 
                     <View style={styles.formContainer}>
@@ -75,12 +74,13 @@ const RegisterScreen = ({ navigation }) => {
                             <Ionicons
                                 name="person-outline"
                                 size={20}
-                                color="#757575"
+                                color="#BDBDBD"
                                 style={styles.inputIcon}
                             />
                             <TextInput
                                 style={styles.input}
                                 placeholder="Full Name"
+                                placeholderTextColor="#888888"
                                 value={name}
                                 onChangeText={setName}
                             />
@@ -91,12 +91,13 @@ const RegisterScreen = ({ navigation }) => {
                             <Ionicons
                                 name="mail-outline"
                                 size={20}
-                                color="#757575"
+                                color="#BDBDBD"
                                 style={styles.inputIcon}
                             />
                             <TextInput
                                 style={styles.input}
                                 placeholder="Email"
+                                placeholderTextColor="#888888"
                                 keyboardType="email-address"
                                 autoCapitalize="none"
                                 value={email}
@@ -109,12 +110,13 @@ const RegisterScreen = ({ navigation }) => {
                             <Ionicons
                                 name="lock-closed-outline"
                                 size={20}
-                                color="#757575"
+                                color="#BDBDBD"
                                 style={styles.inputIcon}
                             />
                             <TextInput
                                 style={[styles.input, styles.passwordInput]}
                                 placeholder="Password"
+                                placeholderTextColor="#888888"
                                 secureTextEntry={!showPassword}
                                 value={password}
                                 onChangeText={setPassword}
@@ -126,7 +128,7 @@ const RegisterScreen = ({ navigation }) => {
                                 <Ionicons
                                     name={showPassword ? "eye-off-outline" : "eye-outline"}
                                     size={20}
-                                    color="#757575"
+                                    color="#BDBDBD"
                                 />
                             </TouchableOpacity>
                         </View>
@@ -136,12 +138,13 @@ const RegisterScreen = ({ navigation }) => {
                             <Ionicons
                                 name="lock-closed-outline"
                                 size={20}
-                                color="#757575"
+                                color="#BDBDBD"
                                 style={styles.inputIcon}
                             />
                             <TextInput
                                 style={[styles.input, styles.passwordInput]}
                                 placeholder="Confirm Password"
+                                placeholderTextColor="#888888"
                                 secureTextEntry={!showConfirmPassword}
                                 value={confirmPassword}
                                 onChangeText={setConfirmPassword}
@@ -153,7 +156,7 @@ const RegisterScreen = ({ navigation }) => {
                                 <Ionicons
                                     name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
                                     size={20}
-                                    color="#757575"
+                                    color="#BDBDBD"
                                 />
                             </TouchableOpacity>
                         </View>
@@ -182,7 +185,7 @@ const RegisterScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#1E1E1E",
     },
     scrollContent: {
         flexGrow: 1,
@@ -201,12 +204,12 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: "bold",
-        color: "#212121",
+        color: "#FFFFFF",
         marginBottom: 8,
     },
     subtitle: {
         fontSize: 16,
-        color: "#757575",
+        color: "#BDBDBD",
     },
     formContainer: {
         width: "100%",
@@ -219,11 +222,12 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         borderWidth: 1,
-        borderColor: "#E0E0E0",
+        borderColor: "#333333",
         borderRadius: 8,
         marginBottom: 8,
         paddingHorizontal: 12,
         height: 56,
+        backgroundColor: "#252525",
     },
     inputIcon: {
         marginRight: 12,
@@ -232,7 +236,7 @@ const styles = StyleSheet.create({
         flex: 1,
         height: "100%",
         fontSize: 16,
-        color: "#212121",
+        color: "#FFFFFF",
     },
     passwordInput: {
         paddingRight: 40,
@@ -261,11 +265,11 @@ const styles = StyleSheet.create({
     },
     loginText: {
         fontSize: 14,
-        color: "#757575",
+        color: "#BDBDBD",
     },
     loginLink: {
         fontSize: 14,
-        color: "#6C63FF",
+        color: "#007AFF",
         fontWeight: "bold",
     },
 });

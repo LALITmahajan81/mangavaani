@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 // Actions
 import { logout } from "../../services/actions/authActions";
-import { setTheme, setReadingMode, setFontSize, toggleNotifications, setDataUsage, toggleAutoUpdate } from "../../services/actions/settingsActions";
+import { setReadingMode, setFontSize, toggleNotifications, setDataUsage, toggleAutoUpdate } from "../../services/actions/settingsActions";
 
 // Components
 import Button from "../../components/common/Button";
@@ -22,9 +22,9 @@ const SettingsScreen = () => {
 
     const renderSwitch = (value, onValueChange) => (
         <Switch
-            trackColor={{ false: "#E0E0E0", true: "#6C63FF" }}
+            trackColor={{ false: "#333333", true: "#007AFF" }}
             thumbColor={value ? "#FFFFFF" : "#F5F5F5"}
-            ios_backgroundColor="#E0E0E0"
+            ios_backgroundColor="#333333"
             onValueChange={onValueChange}
             value={value}
         />
@@ -40,7 +40,7 @@ const SettingsScreen = () => {
                 <Ionicons
                     name={icon}
                     size={24}
-                    color="#6C63FF"
+                    color="#007AFF"
                     style={styles.settingIcon}
                 />
                 <Text style={styles.settingTitle}>{title}</Text>
@@ -75,7 +75,7 @@ const SettingsScreen = () => {
                         <Ionicons
                             name="person-circle"
                             size={80}
-                            color="#6C63FF"
+                            color="#007AFF"
                         />
                     </View>
                     <Text style={styles.userName}>{user?.name || "User"}</Text>
@@ -121,7 +121,7 @@ const SettingsScreen = () => {
                             <Ionicons
                                 name="book-outline"
                                 size={24}
-                                color="#6C63FF"
+                                color="#007AFF"
                                 style={styles.settingIcon}
                             />
                             <Text style={styles.settingTitle}>Reading Mode</Text>
@@ -143,7 +143,7 @@ const SettingsScreen = () => {
                             <Ionicons
                                 name="text-outline"
                                 size={24}
-                                color="#6C63FF"
+                                color="#007AFF"
                                 style={styles.settingIcon}
                             />
                             <Text style={styles.settingTitle}>Font Size</Text>
@@ -164,11 +164,6 @@ const SettingsScreen = () => {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>App Settings</Text>
                     {renderSettingItem(
-                        "moon-outline",
-                        "Dark Mode",
-                        renderSwitch(settings.theme === "dark", () => dispatch(setTheme(settings.theme === "dark" ? "light" : "dark")))
-                    )}
-                    {renderSettingItem(
                         "refresh-outline",
                         "Auto Update Chapters",
                         renderSwitch(settings.autoUpdateChapters, () => dispatch(toggleAutoUpdate()))
@@ -180,7 +175,7 @@ const SettingsScreen = () => {
                             <Ionicons
                                 name="cellular-outline"
                                 size={24}
-                                color="#6C63FF"
+                                color="#007AFF"
                                 style={styles.settingIcon}
                             />
                             <Text style={styles.settingTitle}>Data Usage</Text>
@@ -249,7 +244,7 @@ const SettingsScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F5F5F5",
+        backgroundColor: "#1E1E1E",
     },
     scrollContent: {
         padding: 16,
@@ -257,7 +252,7 @@ const styles = StyleSheet.create({
     profileSection: {
         alignItems: "center",
         padding: 24,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#252525",
         borderRadius: 12,
         marginBottom: 24,
     },
@@ -272,15 +267,15 @@ const styles = StyleSheet.create({
     userName: {
         fontSize: 18,
         fontWeight: "bold",
-        color: "#212121",
+        color: "#FFFFFF",
         marginBottom: 4,
     },
     userEmail: {
         fontSize: 14,
-        color: "#757575",
+        color: "#BDBDBD",
     },
     section: {
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#252525",
         borderRadius: 12,
         marginBottom: 24,
         padding: 16,
@@ -288,7 +283,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: "bold",
-        color: "#212121",
+        color: "#FFFFFF",
         marginBottom: 16,
     },
     settingItem: {
@@ -297,7 +292,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: "#F5F5F5",
+        borderBottomColor: "#333333",
     },
     settingLeftSection: {
         flexDirection: "row",
@@ -308,7 +303,7 @@ const styles = StyleSheet.create({
     },
     settingTitle: {
         fontSize: 16,
-        color: "#212121",
+        color: "#FFFFFF",
     },
     radioOptionsContainer: {
         paddingLeft: 36,
@@ -330,17 +325,17 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     radioButtonSelected: {
-        borderColor: "#6C63FF",
+        borderColor: "#007AFF",
     },
     radioButtonInner: {
         width: 10,
         height: 10,
         borderRadius: 5,
-        backgroundColor: "#6C63FF",
+        backgroundColor: "#007AFF",
     },
     radioLabel: {
         fontSize: 14,
-        color: "#424242",
+        color: "#DDDDDD",
     },
     versionContainer: {
         alignItems: "center",
@@ -348,7 +343,7 @@ const styles = StyleSheet.create({
     },
     versionText: {
         fontSize: 14,
-        color: "#9E9E9E",
+        color: "#777777",
     },
 });
 

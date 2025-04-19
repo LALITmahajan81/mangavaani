@@ -77,7 +77,7 @@ const SearchScreen = ({ navigation }) => {
     };
 
     const handleGenreSelect = (genre) => {
-        navigation.navigate("MangaDetails", { genreFilter: genre });
+        navigation.navigate("MangaStack", { screen: "MangaDetails", params: { genreFilter: genre } });
     };
 
     const renderMangaItem = ({ item }) => (
@@ -144,12 +144,13 @@ const SearchScreen = ({ navigation }) => {
                     <Ionicons
                         name="search"
                         size={20}
-                        color="#757575"
+                        color="#BBBBBB"
                         style={styles.searchIcon}
                     />
                     <TextInput
                         style={styles.searchInput}
                         placeholder="Search for manga or authors"
+                        placeholderTextColor="#888888"
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                         returnKeyType="search"
@@ -160,7 +161,7 @@ const SearchScreen = ({ navigation }) => {
                             <Ionicons
                                 name="close-circle"
                                 size={20}
-                                color="#757575"
+                                color="#BBBBBB"
                             />
                         </TouchableOpacity>
                     )}
@@ -171,7 +172,7 @@ const SearchScreen = ({ navigation }) => {
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator
                         size="large"
-                        color="#6C63FF"
+                        color="#007AFF"
                     />
                 </View>
             ) : searchQuery.length > 0 ? (
@@ -197,16 +198,16 @@ const SearchScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F5F5F5",
+        backgroundColor: "#1E1E1E",
     },
     header: {
         padding: 16,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#252525",
     },
     searchContainer: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#F5F5F5",
+        backgroundColor: "#333333",
         borderRadius: 8,
         paddingHorizontal: 12,
         height: 48,
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
         flex: 1,
         height: "100%",
         fontSize: 16,
-        color: "#212121",
+        color: "#FFFFFF",
     },
     suggestionsContainer: {
         flex: 1,
@@ -230,7 +231,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: "bold",
-        color: "#212121",
+        color: "#FFFFFF",
         marginBottom: 12,
     },
     chipsContainer: {
@@ -238,18 +239,18 @@ const styles = StyleSheet.create({
         flexWrap: "wrap",
     },
     chip: {
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#333333",
         borderRadius: 16,
         paddingVertical: 6,
         paddingHorizontal: 12,
         marginRight: 8,
         marginBottom: 8,
         borderWidth: 1,
-        borderColor: "#E0E0E0",
+        borderColor: "#444444",
     },
     chipText: {
         fontSize: 14,
-        color: "#757575",
+        color: "#DDDDDD",
     },
     loadingContainer: {
         flex: 1,
@@ -272,7 +273,7 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: 16,
-        color: "#757575",
+        color: "#BBBBBB",
         textAlign: "center",
     },
 });

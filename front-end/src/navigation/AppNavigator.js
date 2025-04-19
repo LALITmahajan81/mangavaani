@@ -41,11 +41,11 @@ const AppNavigator = () => {
                         />
                     );
                 },
-                tabBarActiveTintColor: "#6C63FF",
-                tabBarInactiveTintColor: "gray",
+                tabBarActiveTintColor: "#007AFF",
+                tabBarInactiveTintColor: "#BBBBBB",
                 tabBarStyle: {
-                    backgroundColor: theme === "dark" ? "#1E1E1E" : "#FFFFFF",
-                    borderTopColor: theme === "dark" ? "#333333" : "#E0E0E0",
+                    backgroundColor: "#1E1E1E",
+                    borderTopColor: "#333333",
                 },
                 headerShown: false,
             })}
@@ -65,6 +65,14 @@ const AppNavigator = () => {
             <Tab.Screen
                 name="Settings"
                 component={SettingsScreen}
+            />
+            <Tab.Screen
+                name="MangaStack"
+                component={MangaNavigator}
+                options={{
+                    tabBarButton: () => null,
+                    tabBarVisible: false,
+                }}
             />
         </Tab.Navigator>
     );

@@ -21,6 +21,63 @@ const mockMangaDetails = {
         'Gol D. Roger, a man referred to as the "Pirate King," is set to be executed by the World Government. But just before his death, he confirms the existence of a great treasure, One Piece, located somewhere within the vast ocean known as the Grand Line. Announcing that One Piece can be claimed by anyone worthy enough to reach it, the Pirate King is executed and the Great Age of Pirates begins. Twenty-two years later, a young man named Monkey D. Luffy is ready to embark on his own adventure, searching for One Piece and striving to become the new Pirate King.',
 };
 
+// Add more specific mock data for different manga IDs
+const mangaDetailsMap = {
+    1: mockMangaDetails,
+    2: {
+        id: "2",
+        title: "Demon Slayer",
+        coverImage: "https://via.placeholder.com/300x450",
+        author: "Koyoharu Gotouge",
+        artist: "Koyoharu Gotouge",
+        status: "Completed",
+        releaseYear: "2016",
+        genres: ["Action", "Adventure", "Fantasy", "Supernatural"],
+        rating: "4.8",
+        description:
+            "In Taisho-era Japan, Tanjiro Kamado is a kindhearted boy who makes a living selling charcoal. But his peaceful life is shattered when a demon slaughters his entire family. His little sister Nezuko is the only survivor, but she has been transformed into a demon herself! Tanjiro sets out to become a demon slayer to avenge his family and cure his sister.",
+    },
+    3: {
+        id: "3",
+        title: "My Hero Academia",
+        coverImage: "https://via.placeholder.com/300x450",
+        author: "Kohei Horikoshi",
+        artist: "Kohei Horikoshi",
+        status: "Ongoing",
+        releaseYear: "2014",
+        genres: ["Action", "Adventure", "Comedy", "Superhero"],
+        rating: "4.8",
+        description:
+            "In a world where people with superpowers (known as 'Quirks') are the norm, Izuku Midoriya has dreams of becoming a hero despite being bullied for not having a Quirk. After meeting his personal hero, All Might, Midoriya is scouted to become his successor and later joins U.A. High School, a prestigious high school for heroes in training.",
+    },
+    4: {
+        id: "4",
+        title: "Jujutsu Kaisen",
+        coverImage: "https://via.placeholder.com/300x450",
+        author: "Gege Akutami",
+        artist: "Gege Akutami",
+        status: "Ongoing",
+        releaseYear: "2018",
+        genres: ["Action", "Horror", "Supernatural"],
+        rating: "4.7",
+        description:
+            "Yuji Itadori is an unnaturally fit high school student living a normal life. But when he consumes a cursed object to save his friends, he finds himself sharing his body with a powerful curse named Ryomen Sukuna. Guided by the most powerful jujutsu sorcerer, Satoru Gojo, Itadori is admitted to Tokyo Jujutsu High School, an organization that fights the curses.",
+    },
+    5: {
+        id: "5",
+        title: "Chainsaw Man",
+        coverImage: "https://via.placeholder.com/300x450",
+        author: "Tatsuki Fujimoto",
+        artist: "Tatsuki Fujimoto",
+        status: "Ongoing",
+        releaseYear: "2018",
+        genres: ["Action", "Horror", "Comedy", "Dark Fantasy"],
+        rating: "4.9",
+        description:
+            "Denji is a teenage boy living with a Chainsaw Devil named Pochita. Due to the debt his father left behind, he has been living a rock-bottom life while repaying his debt by harvesting devil corpses with Pochita. One day, Denji is betrayed and killed. As his consciousness fades, he makes a contract with Pochita and gets revived as 'Chainsaw Man' — a man with a devil's heart.",
+    },
+};
+
 const mockChapters = [
     { id: "101", title: "Chapter 1", number: "1", date: "2021-09-01" },
     { id: "102", title: "Chapter 2", number: "2", date: "2021-09-08" },
@@ -41,26 +98,25 @@ const MangaDetailsScreen = ({ route, navigation }) => {
 
     const dispatch = useDispatch();
     const { details, chapters, loading, error, bookmarks, downloads } = useSelector((state) => state.manga);
+    const theme = useSelector((state) => state.settings.theme);
 
-    // Use mock data when API isn't available
-    const mangaDetails = details || mockMangaDetails;
-    const mangaChapters = chapters.length > 0 ? chapters : mockChapters;
+    // Get the correct mock data based on ID
+    const mockData = mangaDetailsMap[id] || mockMangaDetails;
+
+    // Use mock data instead of fetching from API
+    const mangaDetails = mockData;
+    const mangaChapters = mockChapters;
 
     // Check if manga is bookmarked or downloaded
     const isBookmarked = bookmarks.some((bookmark) => bookmark.id === id);
     const isDownloaded = downloads.some((download) => download.id === id);
 
     useEffect(() => {
-        if (id) {
-            dispatch(fetchMangaDetails(id));
-            dispatch(fetchMangaChapters(id));
-        }
-
         // Set the title in the header
         navigation.setOptions({
             title: title || "Manga Details",
         });
-    }, [dispatch, id, navigation, title]);
+    }, [navigation, title]);
 
     const handleBookmark = () => {
         if (isBookmarked) {
@@ -152,7 +208,7 @@ const MangaDetailsScreen = ({ route, navigation }) => {
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator
                         size="large"
-                        color="#6C63FF"
+                        color="#007AFF"
                     />
                 </View>
             ) : error ? (
@@ -209,7 +265,7 @@ const MangaDetailsScreen = ({ route, navigation }) => {
                                         <Ionicons
                                             name={isDownloaded ? "cloud-done" : "cloud-download-outline"}
                                             size={24}
-                                            color={isDownloaded ? "#6C63FF" : "#424242"}
+                                            color={isDownloaded ? "#007AFF" : "#424242"}
                                         />
                                         <Text style={styles.actionText}>{isDownloaded ? "Downloaded" : "Download"}</Text>
                                     </TouchableOpacity>
@@ -267,7 +323,7 @@ const MangaDetailsScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#1E1E1E",
     },
     loadingContainer: {
         flex: 1,
@@ -298,7 +354,7 @@ const styles = StyleSheet.create({
         height: "100%",
     },
     contentContainer: {
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#1E1E1E",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         marginTop: -20,
@@ -326,7 +382,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: "bold",
-        color: "#212121",
+        color: "#FFFFFF",
         marginBottom: 4,
     },
     ratingContainer: {
@@ -337,7 +393,7 @@ const styles = StyleSheet.create({
     ratingText: {
         marginLeft: 4,
         fontSize: 14,
-        color: "#212121",
+        color: "#FFFFFF",
         fontWeight: "bold",
     },
     actionsContainer: {
@@ -350,7 +406,7 @@ const styles = StyleSheet.create({
     },
     actionText: {
         fontSize: 12,
-        color: "#424242",
+        color: "#BDBDBD",
         marginTop: 4,
     },
     genresContainer: {
@@ -359,7 +415,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     genreTag: {
-        backgroundColor: "#F5F5F5",
+        backgroundColor: "#333333",
         borderRadius: 16,
         paddingVertical: 4,
         paddingHorizontal: 12,
@@ -368,7 +424,7 @@ const styles = StyleSheet.create({
     },
     genreText: {
         fontSize: 12,
-        color: "#757575",
+        color: "#BDBDBD",
     },
     descriptionContainer: {
         marginBottom: 16,
@@ -376,21 +432,21 @@ const styles = StyleSheet.create({
     descriptionTitle: {
         fontSize: 16,
         fontWeight: "bold",
-        color: "#212121",
+        color: "#FFFFFF",
         marginBottom: 8,
     },
     descriptionText: {
         fontSize: 14,
-        color: "#424242",
+        color: "#BDBDBD",
         lineHeight: 20,
     },
     readMoreText: {
-        color: "#6C63FF",
+        color: "#007AFF",
         fontSize: 14,
         marginTop: 4,
     },
     infoContainer: {
-        backgroundColor: "#F5F5F5",
+        backgroundColor: "#333333",
         borderRadius: 8,
         padding: 12,
         marginBottom: 16,
@@ -402,19 +458,19 @@ const styles = StyleSheet.create({
     infoLabel: {
         width: 80,
         fontSize: 14,
-        color: "#757575",
+        color: "#BDBDBD",
     },
     infoValue: {
         flex: 1,
         fontSize: 14,
-        color: "#212121",
+        color: "#FFFFFF",
         fontWeight: "500",
     },
     tabContainer: {
         flexDirection: "row",
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#1E1E1E",
         borderBottomWidth: 1,
-        borderColor: "#E0E0E0",
+        borderColor: "#333333",
         marginHorizontal: -16,
         paddingHorizontal: 16,
     },
@@ -424,14 +480,14 @@ const styles = StyleSheet.create({
     },
     activeTab: {
         borderBottomWidth: 2,
-        borderColor: "#6C63FF",
+        borderColor: "#007AFF",
     },
     tabText: {
         fontSize: 16,
-        color: "#757575",
+        color: "#BDBDBD",
     },
     activeTabText: {
-        color: "#6C63FF",
+        color: "#007AFF",
         fontWeight: "bold",
     },
     chaptersContainer: {
@@ -443,25 +499,26 @@ const styles = StyleSheet.create({
         alignItems: "center",
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderColor: "#F5F5F5",
+        borderColor: "#333333",
     },
     chapterTitle: {
         fontSize: 16,
-        color: "#212121",
+        color: "#FFFFFF",
     },
     chapterDate: {
         fontSize: 12,
-        color: "#757575",
+        color: "#BDBDBD",
         marginTop: 4,
     },
     relatedContainer: {
+        marginTop: 16,
         height: 200,
         justifyContent: "center",
         alignItems: "center",
     },
     comingSoonText: {
         fontSize: 16,
-        color: "#757575",
+        color: "#BDBDBD",
     },
 });
 

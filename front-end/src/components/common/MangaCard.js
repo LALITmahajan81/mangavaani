@@ -26,9 +26,12 @@ const MangaCard = ({ manga, size = "medium" }) => {
 
     // Navigate to manga details
     const handlePress = () => {
-        navigation.navigate("MangaDetails", {
-            id: manga.id,
-            title: manga.title,
+        navigation.navigate("MangaStack", {
+            screen: "MangaDetails",
+            params: {
+                id: manga.id,
+                title: manga.title,
+            },
         });
     };
 
@@ -91,7 +94,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         borderRadius: 8,
         overflow: "hidden",
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#333333",
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -99,7 +102,7 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     smallContainer: {
-        width: 100,
+        width: 150,
     },
     largeContainer: {
         width: 180,
@@ -128,17 +131,17 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: "bold",
         marginBottom: 4,
-        color: "#212121",
+        color: "#FFFFFF",
     },
     smallTitle: {
-        fontSize: 12,
+        fontSize: 14,
     },
     largeTitle: {
         fontSize: 16,
     },
     author: {
         fontSize: 12,
-        color: "#757575",
+        color: "#BDBDBD",
     },
     ratingsContainer: {
         flexDirection: "row",
@@ -148,7 +151,7 @@ const styles = StyleSheet.create({
     rating: {
         marginLeft: 4,
         fontSize: 12,
-        color: "#212121",
+        color: "#FFFFFF",
     },
 });
 

@@ -77,7 +77,7 @@ const Button = ({
             disabled={disabled || loading}
             activeOpacity={0.8}
         >
-            {loading ? <ActivityIndicator color={variant === "outline" ? "#6C63FF" : "#FFFFFF"} /> : <Text style={getTextStyles()}>{title}</Text>}
+            {loading ? <ActivityIndicator color={variant === "outline" ? "#007AFF" : "#FFFFFF"} /> : <Text style={getTextStyles()}>{title}</Text>}
         </TouchableOpacity>
     );
 };
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
     },
     primaryButton: {
-        backgroundColor: "#6C63FF",
+        backgroundColor: "#007AFF",
     },
     secondaryButton: {
         backgroundColor: "#F50057",
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     outlineButton: {
         backgroundColor: "transparent",
         borderWidth: 1,
-        borderColor: "#6C63FF",
+        borderColor: "#007AFF",
     },
     disabledButton: {
         opacity: 0.6,
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
         color: "#FFFFFF",
     },
     outlineButtonText: {
-        color: "#6C63FF",
+        color: "#007AFF",
     },
     smallButtonText: {
         fontSize: 14,

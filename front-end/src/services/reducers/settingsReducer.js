@@ -1,6 +1,6 @@
 // Initial state
 const initialState = {
-    theme: "light",
+    theme: "dark", // Always dark mode now
     readingMode: "rightToLeft", // rightToLeft, leftToRight, vertical
     fontSize: "medium",
     notifications: true,
@@ -10,7 +10,6 @@ const initialState = {
 
 // Action types
 export const SETTINGS_TYPES = {
-    SET_THEME: "SET_THEME",
     SET_READING_MODE: "SET_READING_MODE",
     SET_FONT_SIZE: "SET_FONT_SIZE",
     TOGGLE_NOTIFICATIONS: "TOGGLE_NOTIFICATIONS",
@@ -21,11 +20,6 @@ export const SETTINGS_TYPES = {
 // Reducer
 const settingsReducer = (state = initialState, action) => {
     switch (action.type) {
-        case SETTINGS_TYPES.SET_THEME:
-            return {
-                ...state,
-                theme: action.payload,
-            };
         case SETTINGS_TYPES.SET_READING_MODE:
             return {
                 ...state,
