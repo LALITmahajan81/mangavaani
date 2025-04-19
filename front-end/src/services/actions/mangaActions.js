@@ -80,11 +80,16 @@ export const fetchMangaChapters = (id) => async (dispatch) => {
 
     try {
         const response = await mangaAPI.getMangaChapters(id);
-        const chapters = response.data.chapters || [];
+
+        // Extract chapters and chapter count from response
+        const responseData = {
+            chapters: response.data.chapters || [],
+            chapterCount: response.data.chapterCount || 0,
+        };
 
         dispatch({
             type: MANGA_TYPES.FETCH_CHAPTERS_SUCCESS,
-            payload: chapters,
+            payload: responseData,
         });
     } catch (error) {
         console.error("Error fetching chapters:", error);

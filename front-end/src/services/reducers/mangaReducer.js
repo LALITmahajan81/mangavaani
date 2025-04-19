@@ -12,6 +12,7 @@ const initialState = {
     recentError: null,
     details: null,
     chapters: [],
+    chapterCount: 0,
     currentChapter: null,
     searchResults: [],
     bookmarks: [],
@@ -117,7 +118,8 @@ const mangaReducer = (state = initialState, action) => {
         case MANGA_TYPES.FETCH_CHAPTERS_SUCCESS:
             return {
                 ...state,
-                chapters: action.payload,
+                chapters: action.payload.chapters || action.payload,
+                chapterCount: action.payload.chapterCount || (action.payload.chapters ? action.payload.chapters.length : 0),
                 loading: false,
             };
         case MANGA_TYPES.FETCH_CHAPTERS_FAILURE:

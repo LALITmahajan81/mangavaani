@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Image, FlatList, StyleSheet, ActivityIndicator, Text, Dimensions, TouchableOpacity } from "react-native";
+import { View, Image, FlatList, StyleSheet, ActivityIndicator, Text, Dimensions, TouchableOpacity, Alert } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 
 // Actions
-import { fetchChapterDetails } from "../services/actions/mangaActions";
+import { fetchChapterDetails, fetchMangaChapters } from "../services/actions/mangaActions";
 
 const ChapterReader = ({ route, navigation }) => {
     const { mangaId, chapterId, title } = route.params;
@@ -14,16 +14,17 @@ const ChapterReader = ({ route, navigation }) => {
     const screenWidth = Dimensions.get("window").width;
     const screenHeight = Dimensions.get("window").height;
     const [showControls, setShowControls] = useState(false);
+    const [currentChapterId, setCurrentChapterId] = useState(chapterId);
 
     const dispatch = useDispatch();
-    const { currentChapter, loading, error } = useSelector((state) => state.manga);
+    const { currentChapter, chapters, loading, error } = useSelector((state) => state.manga);
 
     // Get chapter images from Redux
     const images = currentChapter?.images || [];
 
     useEffect(() => {
-        // Fetch chapter details from API
-        dispatch(fetchChapterDetails(mangaId, chapterId));
+        // Fetch manga chapters for navigation
+        dispatch(fetchMangaChapters(mangaId));
 
         // Hide status bar for immersive reading
         StatusBar.setStatusBarHidden(true, "fade");
@@ -32,7 +33,14 @@ const ChapterReader = ({ route, navigation }) => {
         return () => {
             StatusBar.setStatusBarHidden(false, "fade");
         };
-    }, [dispatch, mangaId, chapterId]);
+    }, [dispatch, mangaId]);
+
+    // Fetch chapter details when currentChapterId changes
+    useEffect(() => {
+        if (currentChapterId) {
+            dispatch(fetchChapterDetails(mangaId, currentChapterId));
+        }
+    }, [dispatch, mangaId, currentChapterId]);
 
     // Toggle reader controls visibility
     const toggleControls = () => {
@@ -42,6 +50,33 @@ const ChapterReader = ({ route, navigation }) => {
     // Navigate back to manga details
     const handleBack = () => {
         navigation.goBack();
+    };
+
+    // Navigate to next or previous chapter
+    const navigateChapter = (direction) => {
+        if (!chapters || chapters.length === 0) return;
+
+        // Find current chapter index
+        const currentIndex = chapters.findIndex((chapter) => chapter.id === currentChapterId);
+        if (currentIndex === -1) return;
+
+        // Calculate next/previous index
+        const newIndex = direction === "next" ? currentIndex + 1 : currentIndex - 1;
+
+        // Check if index is valid
+        if (newIndex < 0) {
+            Alert.alert("First Chapter", "You're already at the first chapter.");
+            return;
+        }
+
+        if (newIndex >= chapters.length) {
+            Alert.alert("Last Chapter", "You've reached the last chapter.");
+            return;
+        }
+
+        // Navigate to new chapter
+        setCurrentChapterId(chapters[newIndex].id);
+        setPageIndex(0); // Reset to first page
     };
 
     const renderItem = ({ item, index }) => (
@@ -79,7 +114,7 @@ const ChapterReader = ({ route, navigation }) => {
                 <Text style={styles.errorText}>{error || "No images found for this chapter."}</Text>
                 <TouchableOpacity
                     style={styles.retryButton}
-                    onPress={() => dispatch(fetchChapterDetails(mangaId, chapterId))}
+                    onPress={() => dispatch(fetchChapterDetails(mangaId, currentChapterId))}
                 >
                     <Text style={styles.retryButtonText}>Retry</Text>
                 </TouchableOpacity>
@@ -92,6 +127,14 @@ const ChapterReader = ({ route, navigation }) => {
             </View>
         );
     }
+
+    // Find current chapter details and chapter count/position
+    const currentChapterObj = chapters ? chapters.find((c) => c.id === currentChapterId) : null;
+    const currentChapterTitle = currentChapterObj ? currentChapterObj.title || `Chapter ${currentChapterObj.number}` : "Chapter";
+
+    // Find position/index of current chapter in the list
+    const chapterPosition = chapters ? chapters.findIndex((c) => c.id === currentChapterId) + 1 : 0;
+    const totalChapters = chapters ? chapters.length : 0;
 
     return (
         <View style={styles.container}>
@@ -106,15 +149,42 @@ const ChapterReader = ({ route, navigation }) => {
                             size={28}
                             color="#FFFFFF"
                         />
-                        <Text style={styles.controlText}>{title || "Back"}</Text>
+                        <Text style={styles.controlText}>Back</Text>
                     </TouchableOpacity>
+                    <Text style={styles.chapterTitle}>{currentChapterTitle}</Text>
+                    <Text style={styles.chapterInfo}>
+                        Chapter {currentChapterObj?.number || "?"} of {totalChapters}
+                    </Text>
+
+                    <View style={styles.navigationButtons}>
+                        <TouchableOpacity
+                            style={styles.navButton}
+                            onPress={() => navigateChapter("prev")}
+                        >
+                            <Ionicons
+                                name="chevron-back-circle"
+                                size={32}
+                                color="#FFFFFF"
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.navButton}
+                            onPress={() => navigateChapter("next")}
+                        >
+                            <Ionicons
+                                name="chevron-forward-circle"
+                                size={32}
+                                color="#FFFFFF"
+                            />
+                        </TouchableOpacity>
+                    </View>
                 </SafeAreaView>
             )}
 
             <FlatList
                 data={images}
                 renderItem={renderItem}
-                keyExtractor={(_, index) => `page-${index}`}
+                keyExtractor={(_, index) => `page-${currentChapterId}-${index}`}
                 pagingEnabled
                 showsVerticalScrollIndicator={false}
                 onViewableItemsChanged={({ viewableItems }) => {
@@ -180,16 +250,38 @@ const styles = StyleSheet.create({
         zIndex: 10,
         backgroundColor: "rgba(0, 0, 0, 0.7)",
         paddingVertical: 10,
+        paddingHorizontal: 16,
     },
     backButton: {
         flexDirection: "row",
         alignItems: "center",
-        paddingHorizontal: 16,
     },
     controlText: {
         color: "#FFFFFF",
         fontSize: 16,
         marginLeft: 8,
+    },
+    chapterTitle: {
+        color: "#FFFFFF",
+        fontSize: 16,
+        fontWeight: "bold",
+        textAlign: "center",
+        marginVertical: 8,
+    },
+    chapterInfo: {
+        color: "#FFFFFF",
+        fontSize: 14,
+        textAlign: "center",
+        marginVertical: 8,
+    },
+    navigationButtons: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginTop: 10,
+        paddingHorizontal: 20,
+    },
+    navButton: {
+        padding: 8,
     },
     retryButton: {
         backgroundColor: "#007AFF",
