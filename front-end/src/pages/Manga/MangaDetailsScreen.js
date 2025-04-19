@@ -131,6 +131,13 @@ const MangaDetailsScreen = ({ route, navigation }) => {
         }
     };
 
+    const handleComments = () => {
+        navigation.navigate("Comments", {
+            mangaId: id,
+            mangaTitle: mangaDetails.title,
+        });
+    };
+
     const handleReadChapter = (chapter) => {
         navigation.navigate("Reader", {
             mangaId: id,
@@ -200,7 +207,7 @@ const MangaDetailsScreen = ({ route, navigation }) => {
     );
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={[styles.container, { backgroundColor: theme === "dark" ? "#000" : "#fff" }]}>
             {loading ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator
@@ -265,6 +272,27 @@ const MangaDetailsScreen = ({ route, navigation }) => {
                                             color={isDownloaded ? "#007AFF" : "#424242"}
                                         />
                                         <Text style={styles.actionText}>{isDownloaded ? "Downloaded" : "Download"}</Text>
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        style={styles.actionButton}
+                                        onPress={handleComments}
+                                    >
+                                        <Ionicons
+                                            name="chatbubble-outline"
+                                            size={24}
+                                            color="#424242"
+                                        />
+                                        <Text style={styles.actionText}>Comments</Text>
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity style={styles.actionButton}>
+                                        <Ionicons
+                                            name="share-social-outline"
+                                            size={24}
+                                            color="#424242"
+                                        />
+                                        <Text style={styles.actionText}>Share</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
