@@ -1,31 +1,7 @@
 const express = require("express");
 const mangaController = require("../controllers/mangaController");
-const mangaService = require("../services/mangaService");
 
 const router = express.Router();
-
-/**
- * @route   GET /api/manga/status
- * @desc    Check API connectivity
- * @access  Public
- */
-router.get("/status", async (req, res) => {
-    try {
-        // Test connection to Manga Hook API
-        await mangaService.getMangaList();
-        res.json({
-            success: true,
-            message: "Successfully connected to Manga Hook API",
-            baseUrl: mangaService.getBaseUrl(),
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Failed to connect to Manga Hook API",
-            error: error.message,
-        });
-    }
-});
 
 /**
  * @route   GET /api/manga
@@ -54,6 +30,13 @@ router.get("/:id/chapters", mangaController.getMangaChapters);
  * @access  Public
  */
 router.get("/chapter/:id", mangaController.getChapterImages);
+
+/**
+ * @route   GET /api/manga/chapter/:id/simple
+ * @desc    Get chapter images by chapter ID (simplified method)
+ * @access  Public
+ */
+router.get("/chapter/:id/simple", mangaController.getChapterImagesSimple);
 
 /**
  * @route   GET /api/manga/search/:query

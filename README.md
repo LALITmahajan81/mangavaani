@@ -1,10 +1,10 @@
 # MangaVaani - Manga Reading App
 
-MangaVaani is a mobile application that lets users read manga from various sources.
+MangaVaani is a mobile application that lets users read manga from various sources, now integrated with MangaDex API.
 
 ## Project Structure
 
--   `backend/`: Node.js Express server
+-   `backend/`: Node.js Express server with MangaDex API integration
 -   `front-end/`: React Native mobile application
 
 ## Installation and Setup
@@ -55,11 +55,11 @@ npm start
 
 ## API Integration
 
-This app uses the Manga Hook API for fetching manga data. The backend serves as a proxy to the Manga Hook API, and the front-end communicates with the backend.
+This app uses the MangaDex API for fetching manga data. The backend serves as a proxy to the MangaDex API, and the front-end communicates with both the backend and directly with MangaDex API when needed.
 
 ## Features
 
--   Browse popular manga
+-   Browse popular manga from MangaDex
 -   View manga details and chapters
 -   Read manga chapters
 -   Search manga by title
@@ -71,6 +71,7 @@ If you encounter any issues:
 1. Make sure both backend and frontend are running
 2. Check that the API URLs are correctly configured
 3. Check for any network issues
+4. Ensure the MangaDex API is accessible from your network
 
 ## License
 

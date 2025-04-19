@@ -132,11 +132,19 @@ const MangaDetailsScreen = ({ route, navigation }) => {
     };
 
     const handleReadChapter = (chapter) => {
+        // For MangaDex integration - check if we have a mangadex ID format or our local format
+        // MangaDex IDs are UUID format while our local IDs are simple numbers
+        const isMangaDexId =
+            chapter.id &&
+            (chapter.id.length === 36 || // UUID length
+                chapter.id.includes("-")); // UUID format with hyphens
+
         navigation.navigate("Reader", {
             mangaId: id,
             chapterId: chapter.id,
             mangaTitle: mangaDetails.title,
             chapterNumber: chapter.number,
+            isMangaDexChapter: isMangaDexId,
         });
     };
 

@@ -49,7 +49,8 @@ const mangaController = {
     searchManga: async (req, res) => {
         try {
             const { query } = req.params;
-            const searchResults = await mangaService.searchManga(query);
+            const page = req.query.page ? parseInt(req.query.page) : 1;
+            const searchResults = await mangaService.searchManga(query, page);
             res.json(searchResults);
         } catch (error) {
             res.status(500).json({
@@ -88,6 +89,25 @@ const mangaController = {
         try {
             const { id } = req.params;
             const images = await mangaService.getChapterImages(id);
+            res.json(images);
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: "Error fetching chapter images",
+                error: error.message,
+            });
+        }
+    },
+
+    /**
+     * Get chapter images using simpler method
+     * @param {Object} req - Express request object
+     * @param {Object} res - Express response object
+     */
+    getChapterImagesSimple: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const images = await mangaService.getChapterImagesSimple(id);
             res.json(images);
         } catch (error) {
             res.status(500).json({

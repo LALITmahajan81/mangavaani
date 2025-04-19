@@ -6,22 +6,78 @@ import * as FileSystem from "expo-file-system";
 
 // Actions
 import { fetchChapterDetails } from "../../services/actions/mangaActions";
+import { getImageFallback } from "../../utils/mangadexUtils";
 
-// Mock images for the chapter
-const mockChapterImages = [
-    "https://via.placeholder.com/800x1200",
-    "https://via.placeholder.com/800x1200",
-    "https://via.placeholder.com/800x1200",
-    "https://via.placeholder.com/800x1200",
-    "https://via.placeholder.com/800x1200",
-    "https://via.placeholder.com/800x1200",
-    "https://via.placeholder.com/800x1200",
-    "https://via.placeholder.com/800x1200",
-    "https://via.placeholder.com/800x1200",
-    "https://via.placeholder.com/800x1200",
-];
-
+// Get device dimensions
 const { width, height } = Dimensions.get("window");
+
+// Image component with error handling
+const MangaImage = ({ uri, index, onPress }) => {
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
+    const [imageUrl, setImageUrl] = useState(uri);
+
+    const handleError = () => {
+        // If already using a fallback, mark as error
+        if (imageUrl !== uri) {
+            setError(true);
+            setLoading(false);
+            return;
+        }
+
+        // Try to get a fallback image
+        const fallbackUrl = getImageFallback(uri, true);
+        setImageUrl(fallbackUrl);
+
+        // If fallback is a placeholder, mark as error
+        if (fallbackUrl.includes("placehold.co")) {
+            setError(true);
+        }
+
+        setLoading(false);
+    };
+
+    return (
+        <View style={styles.pageContainer}>
+            {loading && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator
+                        size="large"
+                        color="#FFFFFF"
+                    />
+                    <Text style={styles.loadingIndicatorText}>Loading page {index + 1}...</Text>
+                </View>
+            )}
+
+            {error ? (
+                <View style={styles.errorContainer}>
+                    <Ionicons
+                        name="alert-circle-outline"
+                        size={48}
+                        color="#F44336"
+                    />
+                    <Text style={styles.errorText}>Failed to load image</Text>
+                    <Text style={styles.errorSubText}>{uri.substring(0, 40)}...</Text>
+                </View>
+            ) : (
+                <Image
+                    source={{ uri: imageUrl }}
+                    style={styles.pageImage}
+                    resizeMode="contain"
+                    onLoadStart={() => setLoading(true)}
+                    onLoadEnd={() => setLoading(false)}
+                    onError={handleError}
+                />
+            )}
+
+            <TouchableOpacity
+                style={StyleSheet.absoluteFill}
+                activeOpacity={1}
+                onPress={onPress}
+            />
+        </View>
+    );
+};
 
 const ReaderScreen = ({ route, navigation }) => {
     const { mangaId, chapterId, mangaTitle, chapterNumber } = route.params;
@@ -29,16 +85,17 @@ const ReaderScreen = ({ route, navigation }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [orientation, setOrientation] = useState("portrait");
+    const [imageErrors, setImageErrors] = useState({});
 
     const dispatch = useDispatch();
     const { currentChapter, loading, error } = useSelector((state) => state.manga);
     const { readingMode } = useSelector((state) => state.settings);
 
-    // Get chapter images (from API or mock)
-    const chapterImages = currentChapter?.images || mockChapterImages;
+    // Get chapter images from Redux store (filled by MangaDex API)
+    const chapterImages = currentChapter?.images || [];
 
     useEffect(() => {
-        // Fetch chapter details from API
+        // Fetch chapter details from API (MangaDex)
         if (mangaId && chapterId) {
             dispatch(fetchChapterDetails(mangaId, chapterId));
         }
@@ -95,6 +152,14 @@ const ReaderScreen = ({ route, navigation }) => {
                 goToNextPage();
             }
         }
+    };
+
+    // Handle image loading error
+    const handleImageError = (index) => {
+        setImageErrors((prev) => ({
+            ...prev,
+            [index]: true,
+        }));
     };
 
     // Page indicator component
@@ -169,18 +234,11 @@ const ReaderScreen = ({ route, navigation }) => {
     // Render page based on reading mode
     const renderPage = ({ item, index }) => {
         return (
-            <TouchableOpacity
-                activeOpacity={1}
+            <MangaImage
+                uri={item}
+                index={index}
                 onPress={toggleControls}
-                onLongPress={toggleControls}
-                style={styles.pageContainer}
-            >
-                <Image
-                    source={{ uri: item }}
-                    style={styles.pageImage}
-                    resizeMode="contain"
-                />
-            </TouchableOpacity>
+            />
         );
     };
 
@@ -234,6 +292,7 @@ const ReaderScreen = ({ route, navigation }) => {
                     size="large"
                     color="#6C63FF"
                 />
+                <Text style={styles.loadingText}>Loading chapter...</Text>
             </View>
         );
     }
@@ -248,6 +307,21 @@ const ReaderScreen = ({ route, navigation }) => {
                     onPress={() => dispatch(fetchChapterDetails(mangaId, chapterId))}
                 >
                     <Text style={styles.retryButtonText}>Retry</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
+
+    // No images state
+    if (chapterImages.length === 0) {
+        return (
+            <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>No images found for this chapter.</Text>
+                <TouchableOpacity
+                    style={styles.retryButton}
+                    onPress={() => navigation.goBack()}
+                >
+                    <Text style={styles.retryButtonText}>Go Back</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -301,6 +375,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginBottom: 16,
         textAlign: "center",
+    },
+    errorSubText: {
+        color: "#BDBDBD",
+        fontSize: 12,
+        marginTop: 8,
+        textAlign: "center",
+        paddingHorizontal: 20,
     },
     retryButton: {
         backgroundColor: "#6C63FF",
@@ -385,6 +466,27 @@ const styles = StyleSheet.create({
     },
     touchArea: {
         flex: 1,
+    },
+    loadingText: {
+        color: "#FFFFFF",
+        fontSize: 16,
+        marginTop: 16,
+    },
+    loadingOverlay: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        zIndex: 5,
+    },
+    loadingIndicatorText: {
+        color: "#FFFFFF",
+        fontSize: 14,
+        marginTop: 8,
     },
 });
 

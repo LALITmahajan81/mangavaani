@@ -76,7 +76,7 @@ const AppNavigator = () => {
                     component={MangaNavigator}
                     options={{
                         tabBarButton: () => null,
-                        tabBarVisible: false,
+                        tabBarStyle: { display: "none" },
                     }}
                 />
             </Tab.Navigator>

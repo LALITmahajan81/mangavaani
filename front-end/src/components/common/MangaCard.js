@@ -35,6 +35,9 @@ const MangaCard = ({ manga, size = "medium" }) => {
         });
     };
 
+    // Use manga.image for the cover image with a fallback
+    const coverImage = manga.image || "https://placehold.co/200x300?text=No+Cover";
+
     return (
         <TouchableOpacity
             style={[styles.container, size === "small" && styles.smallContainer, size === "large" && styles.largeContainer]}
@@ -42,7 +45,7 @@ const MangaCard = ({ manga, size = "medium" }) => {
         >
             <View style={styles.imageContainer}>
                 <Image
-                    source={{ uri: manga.coverImage || "https://via.placeholder.com/150x200" }}
+                    source={{ uri: coverImage }}
                     style={styles.image}
                     resizeMode="cover"
                 />
@@ -102,7 +105,7 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     smallContainer: {
-        width: 150,
+        width: 120,
     },
     largeContainer: {
         width: 180,

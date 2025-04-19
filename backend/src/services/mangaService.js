@@ -1,229 +1,16 @@
 const axios = require("axios");
-
-// Dummy data for testing
-const DUMMY_MANGA_LIST = [
-    {
-        id: "manga-1",
-        title: "One Piece",
-        image: "https://via.placeholder.com/200x300?text=OnePiece",
-        chapter: "Chapter 1084",
-        view: "5.2M",
-        description:
-            "The story follows the adventures of Monkey D. Luffy, a boy whose body gained the properties of rubber after unintentionally eating a Devil Fruit.",
-    },
-    {
-        id: "manga-2",
-        title: "Demon Slayer",
-        image: "https://via.placeholder.com/200x300?text=DemonSlayer",
-        chapter: "Chapter 205",
-        view: "3.9M",
-        description: "The story follows Tanjiro Kamado and his sister Nezuko Kamado as they seek a cure to Nezuko's demon curse.",
-    },
-    {
-        id: "manga-3",
-        title: "Jujutsu Kaisen",
-        image: "https://via.placeholder.com/200x300?text=JujutsuKaisen",
-        chapter: "Chapter 221",
-        view: "2.7M",
-        description: "The story follows high school student Yuji Itadori as he joins a secret organization of Jujutsu Sorcerers.",
-    },
-    {
-        id: "manga-4",
-        title: "My Hero Academia",
-        image: "https://via.placeholder.com/200x300?text=MyHeroAcademia",
-        chapter: "Chapter 402",
-        view: "3.1M",
-        description: "The story follows Izuku Midoriya, who dreams of becoming a superhero in a world where people with superpowers are the norm.",
-    },
-    {
-        id: "manga-5",
-        title: "Chainsaw Man",
-        image: "https://via.placeholder.com/200x300?text=ChainsawMan",
-        chapter: "Chapter 145",
-        view: "2.5M",
-        description: "The story follows Denji, a young man who merges with his pet devil Pochita to become the Chainsaw Man.",
-    },
-    {
-        id: "manga-6",
-        title: "Tokyo Revengers",
-        image: "https://via.placeholder.com/200x300?text=TokyoRevengers",
-        chapter: "Chapter 278",
-        view: "1.9M",
-        description:
-            "The story follows Takemichi Hanagaki, who travels back in time to save his girlfriend from being killed by the Tokyo Manji Gang.",
-    },
-];
-
-// Dummy chapters data
-const DUMMY_CHAPTERS = {
-    "manga-1": [
-        { id: "chapter-1-1", title: "Romance Dawn", number: "1" },
-        { id: "chapter-1-2", title: "They Call Him Luffy", number: "2" },
-        { id: "chapter-1-3", title: "Enter Zoro", number: "3" },
-    ],
-    "manga-2": [
-        { id: "chapter-2-1", title: "Cruelty", number: "1" },
-        { id: "chapter-2-2", title: "The Stranger", number: "2" },
-        { id: "chapter-2-3", title: "Return to Mt. Sagiri", number: "3" },
-    ],
-    "manga-3": [
-        { id: "chapter-3-1", title: "Ryomen Sukuna", number: "1" },
-        { id: "chapter-3-2", title: "For Myself", number: "2" },
-        { id: "chapter-3-3", title: "Girl of Steel", number: "3" },
-    ],
-    "manga-4": [
-        { id: "chapter-4-1", title: "Izuku Midoriya: Origin", number: "1" },
-        { id: "chapter-4-2", title: "What It Takes to Be a Hero", number: "2" },
-        { id: "chapter-4-3", title: "Roaring Muscles", number: "3" },
-    ],
-    "manga-5": [
-        { id: "chapter-5-1", title: "Dog and Chainsaw", number: "1" },
-        { id: "chapter-5-2", title: "The Place Where Pochita Is", number: "2" },
-        { id: "chapter-5-3", title: "Arrival in Tokyo", number: "3" },
-    ],
-    "manga-6": [
-        { id: "chapter-6-1", title: "Reborn", number: "1" },
-        { id: "chapter-6-2", title: "Resist", number: "2" },
-        { id: "chapter-6-3", title: "Resolve", number: "3" },
-    ],
-};
-
-// Dummy chapter images
-const DUMMY_CHAPTER_IMAGES = {
-    "chapter-1-1": [
-        "https://via.placeholder.com/800x1200?text=Page1",
-        "https://via.placeholder.com/800x1200?text=Page2",
-        "https://via.placeholder.com/800x1200?text=Page3",
-    ],
-    "chapter-2-1": [
-        "https://via.placeholder.com/800x1200?text=DS_Page1",
-        "https://via.placeholder.com/800x1200?text=DS_Page2",
-        "https://via.placeholder.com/800x1200?text=DS_Page3",
-    ],
-    "chapter-3-1": [
-        "https://via.placeholder.com/800x1200?text=JJK_Page1",
-        "https://via.placeholder.com/800x1200?text=JJK_Page2",
-        "https://via.placeholder.com/800x1200?text=JJK_Page3",
-    ],
-    "chapter-4-1": [
-        "https://via.placeholder.com/800x1200?text=MHA_Page1",
-        "https://via.placeholder.com/800x1200?text=MHA_Page2",
-        "https://via.placeholder.com/800x1200?text=MHA_Page3",
-    ],
-    "chapter-5-1": [
-        "https://via.placeholder.com/800x1200?text=CSM_Page1",
-        "https://via.placeholder.com/800x1200?text=CSM_Page2",
-        "https://via.placeholder.com/800x1200?text=CSM_Page3",
-    ],
-    "chapter-6-1": [
-        "https://via.placeholder.com/800x1200?text=TR_Page1",
-        "https://via.placeholder.com/800x1200?text=TR_Page2",
-        "https://via.placeholder.com/800x1200?text=TR_Page3",
-    ],
-};
-
-// Generate more chapter data for each manga
-const generateMoreChapters = (mangaId, baseChapters) => {
-    const allChapters = [...baseChapters];
-
-    // Generate additional 20 chapters for testing pagination
-    for (let i = baseChapters.length + 1; i <= baseChapters.length + 20; i++) {
-        allChapters.push({
-            id: `${mangaId}-chapter-${i}`,
-            title: `Chapter ${i}`,
-            number: i.toString(),
-            date:
-                "2023-" +
-                (Math.floor(Math.random() * 12) + 1).toString().padStart(2, "0") +
-                "-" +
-                (Math.floor(Math.random() * 28) + 1).toString().padStart(2, "0"),
-        });
-    }
-
-    return allChapters;
-};
-
-// Generate expanded chapter data for all manga
-const EXPANDED_CHAPTERS = {};
-Object.keys(DUMMY_CHAPTERS).forEach((mangaId) => {
-    EXPANDED_CHAPTERS[mangaId] = generateMoreChapters(mangaId, DUMMY_CHAPTERS[mangaId]);
-});
-
-// External API simulation for manga chapters
-const fetchExternalChapters = async (mangaId) => {
-    console.log(`Simulating external API call for manga ID ${mangaId}`);
-
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    // Base chapters from our dummy data
-    const baseChapters = DUMMY_CHAPTERS[mangaId] || [];
-
-    // Generate a realistic number of chapters based on manga ID
-    // This simulates different mangas having different chapter counts
-    const mangaIdNum = parseInt(mangaId.replace(/\D/g, "")) || 1;
-    const seed = mangaIdNum * 17; // Use the manga ID as a seed for deterministic randomness
-
-    // Calculate chapter count: between 30-120 chapters depending on manga
-    const chapterCount = 30 + (seed % 90);
-
-    // Generate all chapters
-    const allChapters = [];
-
-    // Popular/long-running mangas have more chapters
-    for (let i = 1; i <= chapterCount; i++) {
-        // Create chapter with more realistic data
-        const releaseDate = new Date();
-        releaseDate.setDate(releaseDate.getDate() - i * 7); // Weekly release schedule
-
-        let chapterTitle;
-        if (i <= baseChapters.length && baseChapters[i - 1].title) {
-            // Use base title if available
-            chapterTitle = baseChapters[i - 1].title;
-        } else {
-            // Generate title based on chapter number
-            if (i % 10 === 0) {
-                // Special title for milestone chapters
-                chapterTitle = `Milestone: Chapter ${i}`;
-            } else if (i % 5 === 0) {
-                // Semi-special titles
-                const titles = [
-                    "The Battle Begins",
-                    "Unexpected Turn",
-                    "New Power",
-                    "Dark Revelation",
-                    "The Promise",
-                    "Confrontation",
-                    "The Truth",
-                    "Lost and Found",
-                    "Revenge",
-                ];
-                chapterTitle = `${titles[i % titles.length]}: Chapter ${i}`;
-            } else {
-                // Regular chapters just have number
-                chapterTitle = `Chapter ${i}`;
-            }
-        }
-
-        allChapters.push({
-            id: `${mangaId}-chapter-${i}`,
-            title: chapterTitle,
-            number: i.toString(),
-            date: releaseDate.toISOString().split("T")[0],
-        });
-    }
-
-    // Sort chapters in descending order (newest first)
-    return allChapters.sort((a, b) => parseInt(b.number) - parseInt(a.number));
-};
-
-// Cache for chapters to prevent unnecessary "API calls"
-const chaptersCache = {};
+const path = require("path");
+const fs = require("fs");
+require("dotenv").config();
 
 /**
- * Service for providing manga data
+ * Service for providing manga data from MangaDex API
  */
 const mangaService = {
+    // MangaDex API Base URL
+    mangaDexBaseUrl: process.env.MANGADEX_BASE_URL || "https://api.mangadex.org",
+    mangaDexUploadsUrl: "https://uploads.mangadex.org",
+
     /**
      * Get the API base URL
      * @returns {String} The API base URL
@@ -238,29 +25,56 @@ const mangaService = {
     getMangaList: async (params = {}) => {
         console.log("Fetching manga list with params:", params);
 
+        // Default params
+        const apiParams = {
+            limit: 20,
+            offset: 0,
+            includes: ["cover_art"],
+            contentRating: ["safe", "suggestive"],
+            order: {
+                updatedAt: "desc",
+            },
+        };
+
         // Handle different types of manga lists
         if (params && params.type) {
             switch (params.type) {
                 case "popular":
-                    // Sort by view count (descending)
-                    const popularManga = [...DUMMY_MANGA_LIST].sort((a, b) => {
-                        const viewsA = parseInt(a.view.replace(/[^0-9.]/g, ""));
-                        const viewsB = parseInt(b.view.replace(/[^0-9.]/g, ""));
-                        return viewsB - viewsA;
-                    });
-                    return { mangaList: popularManga };
-
+                    apiParams.order = { followedCount: "desc" };
+                    break;
                 case "recent":
-                    // For demonstration, we'll just reverse the list to simulate recently added
-                    const recentManga = [...DUMMY_MANGA_LIST].reverse();
-                    return { mangaList: recentManga };
-
-                default:
-                    return { mangaList: DUMMY_MANGA_LIST };
+                    apiParams.order = { latestUploadedChapter: "desc" };
+                    break;
             }
         }
 
-        return { mangaList: DUMMY_MANGA_LIST };
+        try {
+            const response = await axios.get(`${mangaService.mangaDexBaseUrl}/manga`, { params: apiParams });
+
+            // Transform MangaDex response to match our application format
+            const mangaList = response.data.data.map((manga) => {
+                // Find cover file name
+                const coverRelationship = manga.relationships.find((rel) => rel.type === "cover_art");
+                let coverFileName = coverRelationship?.attributes?.fileName || "";
+
+                return {
+                    id: manga.id,
+                    title: manga.attributes.title.en || Object.values(manga.attributes.title)[0],
+                    image: coverFileName
+                        ? `${mangaService.mangaDexUploadsUrl}/covers/${manga.id}/${coverFileName}`
+                        : "https://placehold.co/200x300?text=NoCover",
+                    chapter: "Latest",
+                    view: "N/A", // MangaDex doesn't provide view counts publicly
+                    description:
+                        manga.attributes.description?.en || Object.values(manga.attributes.description || {})[0] || "No description available",
+                };
+            });
+
+            return { mangaList };
+        } catch (error) {
+            console.error("Error fetching manga list from MangaDex:", error);
+            throw new Error(`Failed to fetch manga list: ${error.message}`);
+        }
     },
 
     /**
@@ -270,13 +84,37 @@ const mangaService = {
      */
     getMangaDetails: async (id) => {
         console.log(`Fetching manga details for ID ${id}`);
-        const manga = DUMMY_MANGA_LIST.find((manga) => manga.id === id);
 
-        if (!manga) {
-            throw new Error(`Manga with ID ${id} not found`);
+        try {
+            const response = await axios.get(`${mangaService.mangaDexBaseUrl}/manga/${id}?includes[]=cover_art&includes[]=author`);
+            const manga = response.data.data;
+
+            // Find cover file name
+            const coverRelationship = manga.relationships.find((rel) => rel.type === "cover_art");
+            let coverFileName = coverRelationship?.attributes?.fileName || "";
+
+            // Find author name
+            const authorRelationship = manga.relationships.find((rel) => rel.type === "author");
+            let authorName = authorRelationship?.attributes?.name || "Unknown";
+
+            return {
+                id: manga.id,
+                title: manga.attributes.title.en || Object.values(manga.attributes.title)[0],
+                image: coverFileName
+                    ? `${mangaService.mangaDexUploadsUrl}/covers/${manga.id}/${coverFileName}`
+                    : "https://placehold.co/200x300?text=NoCover",
+                chapter: "Latest",
+                view: "N/A",
+                description: manga.attributes.description?.en || Object.values(manga.attributes.description || {})[0] || "No description available",
+                author: authorName,
+                status: manga.attributes.status,
+                year: manga.attributes.year,
+                tags: manga.attributes.tags.map((tag) => tag.attributes.name.en || Object.values(tag.attributes.name)[0]),
+            };
+        } catch (error) {
+            console.error(`Error fetching manga details for ID ${id}:`, error);
+            throw new Error(`Manga with ID ${id} not found or API error: ${error.message}`);
         }
-
-        return manga;
     },
 
     /**
@@ -286,13 +124,50 @@ const mangaService = {
      */
     searchManga: async (query, page = 1) => {
         console.log(`Searching manga with query "${query}"`);
-        const results = DUMMY_MANGA_LIST.filter((manga) => manga.title.toLowerCase().includes(query.toLowerCase()));
 
-        return {
-            query,
-            page,
-            mangaList: results,
-        };
+        try {
+            const limit = 20;
+            const offset = (page - 1) * limit;
+
+            const response = await axios.get(`${mangaService.mangaDexBaseUrl}/manga`, {
+                params: {
+                    title: query,
+                    limit,
+                    offset,
+                    includes: ["cover_art"],
+                    contentRating: ["safe", "suggestive"],
+                },
+            });
+
+            // Transform MangaDex response to match our application format
+            const mangaList = response.data.data.map((manga) => {
+                // Find cover file name
+                const coverRelationship = manga.relationships.find((rel) => rel.type === "cover_art");
+                let coverFileName = coverRelationship?.attributes?.fileName || "";
+
+                return {
+                    id: manga.id,
+                    title: manga.attributes.title.en || Object.values(manga.attributes.title)[0],
+                    image: coverFileName
+                        ? `${mangaService.mangaDexUploadsUrl}/covers/${manga.id}/${coverFileName}`
+                        : "https://placehold.co/200x300?text=NoCover",
+                    chapter: "Latest",
+                    view: "N/A",
+                    description:
+                        manga.attributes.description?.en || Object.values(manga.attributes.description || {})[0] || "No description available",
+                };
+            });
+
+            return {
+                query,
+                page,
+                mangaList,
+                total: response.data.total,
+            };
+        } catch (error) {
+            console.error(`Error searching manga with query "${query}":`, error);
+            throw new Error(`Failed to search manga: ${error.message}`);
+        }
     },
 
     /**
@@ -303,38 +178,119 @@ const mangaService = {
     getMangaChapters: async (id) => {
         console.log(`Fetching chapters for manga ID ${id}`);
 
-        // Check cache first
-        if (!chaptersCache[id]) {
-            try {
-                // Fetch from simulated external API
-                chaptersCache[id] = await fetchExternalChapters(id);
-            } catch (error) {
-                console.error(`Error fetching chapters for manga ID ${id}:`, error);
-                throw new Error(`Failed to fetch chapters: ${error.message}`);
-            }
-        }
+        try {
+            const response = await axios.get(`${mangaService.mangaDexBaseUrl}/manga/${id}/feed`, {
+                params: {
+                    translatedLanguage: ["en"],
+                    limit: 100,
+                    order: {
+                        chapter: "desc",
+                    },
+                },
+            });
 
-        return {
-            chapters: chaptersCache[id],
-            chapterCount: chaptersCache[id].length,
-        };
+            // Transform MangaDex chapter response
+            const chapters = response.data.data.map((chapter) => ({
+                id: chapter.id,
+                title: chapter.attributes.title || `Chapter ${chapter.attributes.chapter}`,
+                number: chapter.attributes.chapter,
+                date: chapter.attributes.publishAt.split("T")[0],
+                volume: chapter.attributes.volume,
+            }));
+
+            return {
+                chapters,
+                chapterCount: chapters.length,
+            };
+        } catch (error) {
+            console.error(`Error fetching chapters for manga ID ${id}:`, error);
+            throw new Error(`Failed to fetch chapters: ${error.message}`);
+        }
     },
 
     /**
      * Get chapter images
-     * @param {String} id - Chapter ID
-     * @returns {Promise} - API response
+     * @param {String} chapterId - Chapter ID
+     * @returns {Promise} - API response with array of image URLs
      */
-    getChapterImages: async (id) => {
-        console.log(`Fetching images for chapter ID ${id}`);
-        const images = DUMMY_CHAPTER_IMAGES[id];
+    getChapterImages: async (chapterId) => {
+        console.log(`Fetching images for chapter ID ${chapterId}`);
 
-        if (!images) {
-            throw new Error(`Images for chapter ID ${id} not found`);
+        try {
+            // First, get the chapter data to get the hash and file names
+            const chapterResponse = await axios.get(`${mangaService.mangaDexBaseUrl}/chapter/${chapterId}`);
+            const chapterData = chapterResponse.data.data;
+
+            // Then get the actual server URL for the images
+            const serverResponse = await axios.get(`${mangaService.mangaDexBaseUrl}/at-home/server/${chapterId}`);
+            const baseUrl = serverResponse.data.baseUrl;
+
+            // Construct the image URLs
+            const hash = chapterData.attributes.hash;
+            const fileNames = chapterData.attributes.data;
+            const dataSaver = false; // Set to true if you want to use data-saver (compressed) images
+
+            const images = fileNames.map((fileName) => {
+                if (dataSaver) {
+                    return `${baseUrl}/data-saver/${hash}/${fileName}`;
+                } else {
+                    return `${baseUrl}/data/${hash}/${fileName}`;
+                }
+            });
+
+            return {
+                images,
+                pageCount: images.length,
+                chapterId: chapterId,
+            };
+        } catch (error) {
+            console.error(`Error fetching images for chapter ${chapterId}:`, error);
+            throw new Error(`Failed to fetch chapter images: ${error.message}`);
         }
-
-        return { images };
     },
+
+    /**
+     * Get chapter images directly (simpler method)
+     * @param {String} chapterId - Chapter ID
+     * @returns {Promise} - API response with array of direct image URLs
+     */
+    getChapterImagesSimple: async (chapterId) => {
+        console.log(`Fetching images for chapter ID ${chapterId} (simple method)`);
+
+        try {
+            // Use the MangaDex Chapter API to get file details
+            const chapterResponse = await axios.get(`${mangaService.mangaDexBaseUrl}/chapter/${chapterId}`);
+            const chapterData = chapterResponse.data.data;
+
+            if (!chapterData || !chapterData.attributes || !chapterData.attributes.hash) {
+                throw new Error("Invalid chapter data from MangaDex");
+            }
+
+            const hash = chapterData.attributes.hash;
+            const fileNames = chapterData.attributes.data || [];
+
+            // Directly create URLs to MangaDex CDN (may have rate limiting)
+            const imageUrls = fileNames.map((fileName) => `https://uploads.mangadex.org/data/${hash}/${fileName}`);
+
+            // Also create data-saver URLs for backup
+            const dataSaverUrls = fileNames.map((fileName) => `https://uploads.mangadex.org/data-saver/${hash}/${fileName}`);
+
+            return {
+                images: imageUrls,
+                dataSaverImages: dataSaverUrls,
+                pageCount: imageUrls.length,
+                chapterId: chapterId,
+                hash: hash,
+            };
+        } catch (error) {
+            console.error(`Error fetching images for chapter ${chapterId}:`, error);
+            throw new Error(`Failed to fetch chapter images: ${error.message}`);
+        }
+    },
+
+    // Cache objects for improved performance
+    chaptersCache: {},
+    chapterImagesCache: {},
 };
 
 module.exports = mangaService;
