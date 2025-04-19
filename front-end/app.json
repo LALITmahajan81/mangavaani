@@ -1,29 +1,28 @@
 {
-  "expo": {
-    "name": "mangalo-app",
-    "slug": "mangalo-app",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "package": "com.anonymous.mangaloapp"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    "expo": {
+        "name": "MangaVaani",
+        "slug": "MangaVaani",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./src/assets/images/mainLogo.png",
+        "userInterfaceStyle": "dark",
+        "newArchEnabled": true,
+        "splash": {
+            "image": "./src/assets/images/splash.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#1E1E1E"
+        },
+        "ios": {
+            "supportsTablet": true
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./src/assets/images/mainLogo.png",
+                "backgroundColor": "#1E1E1E"
+            }
+        },
+        "web": {
+            "favicon": "./src/assets/images/mainLogo.png"
+        }
     }
-  }
 }
