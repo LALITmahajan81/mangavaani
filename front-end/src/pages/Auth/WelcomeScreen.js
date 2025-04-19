@@ -17,7 +17,7 @@ const WelcomeScreen = ({ navigation }) => {
                 <View style={styles.illustrationContainer}>
                     {/* Placeholder for an illustration image */}
                     <Image
-                        source={{ uri: "https://via.placeholder.com/400x300" }}
+                        source={{ uri: "https://via.placeholder.com/250x300" }}
                         style={styles.illustration}
                         resizeMode="contain"
                     />
