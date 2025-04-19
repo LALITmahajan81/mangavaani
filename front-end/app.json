@@ -4,12 +4,12 @@
         "slug": "MangaVaani",
         "version": "1.0.0",
         "orientation": "portrait",
-        "icon": "./src/assets/images/mainLogo.png",
+        "icon": "./src/assets/images/logoWhite.png",
         "userInterfaceStyle": "dark",
         "newArchEnabled": true,
         "splash": {
-            "image": "./src/assets/images/splash.png",
-            "resizeMode": "contain",
+            "image": "./src/assets/images/logoWhite.png",
+            "resizeMode": "cover",
             "backgroundColor": "#1E1E1E"
         },
         "ios": {
@@ -17,12 +17,12 @@
         },
         "android": {
             "adaptiveIcon": {
-                "foregroundImage": "./src/assets/images/mainLogo.png",
+                "foregroundImage": "./src/assets/images/logoWhite.png",
                 "backgroundColor": "#1E1E1E"
             }
         },
         "web": {
-            "favicon": "./src/assets/images/mainLogo.png"
+            "favicon": "./src/assets/images/logoWhite.png"
         }
     }
 }

@@ -6,24 +6,21 @@ import { Ionicons } from "@expo/vector-icons";
 // Actions
 import { fetchMangaDetails, fetchMangaChapters, addBookmark, removeBookmark, addDownload, removeDownload } from "../../services/actions/mangaActions";
 
-// Mock data
-const mockMangaDetails = {
-    id: "1",
-    title: "One Piece",
-    coverImage: "https://via.placeholder.com/300x450",
-    author: "Eiichiro Oda",
-    artist: "Eiichiro Oda",
-    status: "Ongoing",
-    releaseYear: "1997",
-    genres: ["Action", "Adventure", "Comedy", "Fantasy", "Shounen"],
-    rating: "4.9",
-    description:
-        'Gol D. Roger, a man referred to as the "Pirate King," is set to be executed by the World Government. But just before his death, he confirms the existence of a great treasure, One Piece, located somewhere within the vast ocean known as the Grand Line. Announcing that One Piece can be claimed by anyone worthy enough to reach it, the Pirate King is executed and the Great Age of Pirates begins. Twenty-two years later, a young man named Monkey D. Luffy is ready to embark on his own adventure, searching for One Piece and striving to become the new Pirate King.',
-};
-
 // Add more specific mock data for different manga IDs
 const mangaDetailsMap = {
-    1: mockMangaDetails,
+    1: {
+        id: "1",
+        title: "One Piece",
+        coverImage: "https://via.placeholder.com/300x450",
+        author: "Eiichiro Oda",
+        artist: "Eiichiro Oda",
+        status: "Ongoing",
+        releaseYear: "1997",
+        genres: ["Action", "Adventure", "Comedy", "Fantasy", "Shounen"],
+        rating: "4.9",
+        description:
+            'Gol D. Roger, a man referred to as the "Pirate King," is set to be executed by the World Government. But just before his death, he confirms the existence of a great treasure, One Piece, located somewhere within the vast ocean known as the Grand Line. Announcing that One Piece can be claimed by anyone worthy enough to reach it, the Pirate King is executed and the Great Age of Pirates begins. Twenty-two years later, a young man named Monkey D. Luffy is ready to embark on his own adventure, searching for One Piece and striving to become the new Pirate King.',
+    },
     2: {
         id: "2",
         title: "Demon Slayer",
