@@ -17,7 +17,7 @@ const WelcomeScreen = ({ navigation }) => {
                 <View style={styles.illustrationContainer}>
                     {/* Placeholder for an illustration image */}
                     <Image
-                        source={{ uri: "https://via.placeholder.com/250x300" }}
+                        source={{ uri: "https://via.placeholder.com/150x100" }}
                         style={styles.illustration}
                         resizeMode="contain"
                     />
@@ -92,7 +92,6 @@ const styles = StyleSheet.create({
     illustrationContainer: {
         width: width * 0.8,
         height: 200,
-        marginVertical: 32,
         justifyContent: "center",
         alignItems: "center",
     },
