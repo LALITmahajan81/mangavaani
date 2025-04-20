@@ -67,11 +67,12 @@ const MangaDetailScreen = ({ route, navigation }) => {
         setPage(1);
     };
 
-    const handleChapterPress = (chapterId) => {
-        navigation.navigate("ChapterReader", {
+    const handleChapterPress = (chapter) => {
+        navigation.navigate("Reader", {
             mangaId,
-            chapterId,
-            title: title || "Chapter",
+            chapterId: chapter.id,
+            mangaTitle: title || currentManga.title,
+            chapterNumber: chapter.number,
         });
     };
 
@@ -249,7 +250,7 @@ const MangaDetailScreen = ({ route, navigation }) => {
                                     <TouchableOpacity
                                         key={chapter.id || index}
                                         style={styles.chapterRow}
-                                        onPress={() => handleChapterPress(chapter.id)}
+                                        onPress={() => handleChapterPress(chapter)}
                                     >
                                         <Text style={styles.chapterNumber}>{chapter.number || index + 1}</Text>
                                         <Text style={styles.chapterTitle}>{chapter.title || `Chapter ${chapter.number || index + 1}`}</Text>

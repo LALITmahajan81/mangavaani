@@ -12,7 +12,7 @@ const ApiStatusCheck = () => {
         setStatus("Checking API connections...");
         try {
             // Try connecting to the direct proxy endpoint
-            const baseUrl = process.env.REACT_APP_API_URL || "http://10.0.2.2:5000/direct-api";
+            const baseUrl = process.env.REACT_APP_API_URL || "http://10.10.115.83:5001/direct-api";
             const response = await axios.get(`${baseUrl}/mangaList`);
 
             // If successful, show some data

@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Alert, Button } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector, useDispatch } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,16 +8,59 @@ import { Ionicons } from "@expo/vector-icons";
 import MangaCard from "../../components/common/MangaCard";
 
 // Actions
-import { fetchMangaList, fetchRecentManga } from "../../services/actions/mangaActions";
+import { fetchMangaList, fetchRecentManga, testApiConnection } from "../../services/actions/mangaActions";
+import { mangaAPI } from "../../services/api";
 
 const HomeScreen = ({ navigation }) => {
     const dispatch = useDispatch();
     const { mangaList, recentManga, loading, error, recentLoading, recentError, bookmarks } = useSelector((state) => state.manga);
     const user = useSelector((state) => state.auth.user);
+    const [connectionRetries, setConnectionRetries] = useState(0);
+
+    // Function to handle connection testing and retries
+    const testConnection = async () => {
+        const connected = await dispatch(testApiConnection());
+        return connected;
+    };
+
+    // Function to force reload the data
+    const handleRetryConnection = async () => {
+        setConnectionRetries((prev) => prev + 1);
+
+        // Try the next API URL
+        mangaAPI.tryNextApiUrl();
+
+        // Test connection with the new URL
+        const connected = await testConnection();
+
+        if (connected) {
+            // If connected, reload the data
+            dispatch(fetchMangaList({ type: "popular" }));
+            dispatch(fetchRecentManga());
+            Alert.alert("Connection restored", `Connected to: ${mangaAPI.getCurrentApiUrl()}`);
+        } else if (connectionRetries < 3) {
+            // Try again with another URL if we haven't reached max retries
+            handleRetryConnection();
+        } else {
+            Alert.alert("Connection Failed", "Could not connect to any API endpoints. Please check your network or try again later.");
+        }
+    };
 
     useEffect(() => {
-        dispatch(fetchMangaList({ type: "popular" }));
-        dispatch(fetchRecentManga());
+        const loadData = async () => {
+            // Test connection first
+            const connected = await testConnection();
+
+            if (connected) {
+                dispatch(fetchMangaList({ type: "popular" }));
+                dispatch(fetchRecentManga());
+            } else {
+                // If not connected, try a different URL
+                handleRetryConnection();
+            }
+        };
+
+        loadData();
     }, [dispatch]);
 
     const renderContinueReadingItem = ({ item }) => (
@@ -72,6 +115,36 @@ const HomeScreen = ({ navigation }) => {
                   ...manga,
                   progress: Math.random() * 100, // Random progress for demo
               }));
+
+    // Render a connection error component with retry button
+    const renderConnectionError = (errorMessage) => (
+        <View style={styles.connectionErrorContainer}>
+            <Ionicons
+                name="cloud-offline"
+                size={48}
+                color="#FF6B6B"
+            />
+            <Text style={styles.errorText}>{errorMessage || "Connection error"}</Text>
+            <TouchableOpacity
+                style={styles.retryButton}
+                onPress={handleRetryConnection}
+            >
+                <Text style={styles.retryButtonText}>Retry Connection</Text>
+            </TouchableOpacity>
+            <Text style={styles.currentUrlText}>Current URL: {mangaAPI.getCurrentApiUrl()}</Text>
+        </View>
+    );
+
+    // If both main sections have errors, show a full-page connection error
+    if (error && recentError) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.fullErrorContainer}>
+                    {renderConnectionError("Cannot connect to the server. Please check your network connection.")}
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -137,9 +210,7 @@ const HomeScreen = ({ navigation }) => {
                             <Text style={styles.loadingText}>Loading manga...</Text>
                         </View>
                     ) : error ? (
-                        <View style={styles.errorContainer}>
-                            <Text style={styles.errorText}>{error}</Text>
-                        </View>
+                        renderConnectionError(error)
                     ) : (
                         <FlatList
                             data={mangaList.slice(0, 6)}
@@ -173,9 +244,7 @@ const HomeScreen = ({ navigation }) => {
                             <Text style={styles.loadingText}>Loading recent manga...</Text>
                         </View>
                     ) : recentError ? (
-                        <View style={styles.errorContainer}>
-                            <Text style={styles.errorText}>{recentError}</Text>
-                        </View>
+                        renderConnectionError(recentError)
                     ) : (
                         <FlatList
                             data={recentManga.slice(0, 6)}
@@ -287,7 +356,39 @@ const styles = StyleSheet.create({
     },
     errorText: {
         color: "#FF6B6B",
-        fontSize: 14,
+        fontSize: 16,
+        marginVertical: 12,
+        textAlign: "center",
+    },
+    connectionErrorContainer: {
+        padding: 20,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0,0,0,0.3)",
+        borderRadius: 8,
+        margin: 10,
+    },
+    fullErrorContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 20,
+    },
+    retryButton: {
+        backgroundColor: "#007AFF",
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 5,
+        marginTop: 15,
+    },
+    retryButtonText: {
+        color: "white",
+        fontWeight: "bold",
+    },
+    currentUrlText: {
+        color: "#999",
+        fontSize: 12,
+        marginTop: 10,
     },
 });
 

@@ -46,7 +46,11 @@ const MangaDetail = ({ route, navigation }) => {
     }, [mangaId]);
 
     const handleChapterPress = (chapterId) => {
-        navigation.navigate("ChapterReader", { chapterId });
+        navigation.navigate("ChapterReader", {
+            mangaId: mangaId,
+            chapterId: chapterId,
+            title: manga.title,
+        });
     };
 
     if (loading) {
@@ -138,7 +142,7 @@ const styles = StyleSheet.create({
     },
     header: {
         flexDirection: "row",
-        padding: 15,
+        padding: 0,
         backgroundColor: "#fff",
     },
     coverImage: {
@@ -150,6 +154,7 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 15,
         justifyContent: "center",
+        marginTop: -25,
     },
     title: {
         fontSize: 18,
@@ -168,7 +173,7 @@ const styles = StyleSheet.create({
     section: {
         backgroundColor: "#fff",
         padding: 15,
-        marginTop: 10,
+        marginTop: 0,
     },
     sectionTitle: {
         fontSize: 16,

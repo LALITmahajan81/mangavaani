@@ -4,7 +4,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 // Import our screens
 import MangaListScreen from "../pages/Manga/MangaListScreen";
 import MangaDetailScreen from "../pages/Manga/MangaDetailScreen";
-import ChapterReader from "../components/ChapterReader";
+import ChapterListScreen from "../pages/Manga/ChapterListScreen";
+import ReaderScreen from "../pages/Reader/ReaderScreen";
 
 const Stack = createStackNavigator();
 
@@ -38,8 +39,13 @@ const MangaNavigator = () => {
                 options={({ route }) => ({ title: route.params?.title || "Manga Details" })}
             />
             <Stack.Screen
-                name="ChapterReader"
-                component={ChapterReader}
+                name="ChapterList"
+                component={ChapterListScreen}
+                options={({ route }) => ({ title: route.params?.title || "Chapters" })}
+            />
+            <Stack.Screen
+                name="Reader"
+                component={ReaderScreen}
                 options={{
                     headerShown: false,
                     gestureEnabled: false,

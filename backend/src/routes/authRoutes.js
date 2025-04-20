@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const { register, login, getProfile } = require("../controllers/authController");
+const { protect } = require("../middleware/auth");
 
 /**
  * @route   GET /api/auth/test
@@ -15,34 +17,20 @@ router.get("/test", (req, res) => {
  * @desc    Login user (mock implementation)
  * @access  Public
  */
-router.post("/login", (req, res) => {
-    res.json({
-        success: true,
-        message: "Login successful",
-        token: "mock-jwt-token",
-        user: {
-            id: "user123",
-            name: "Test User",
-            email: "user@example.com",
-        },
-    });
-});
+router.post("/login", login);
 
 /**
  * @route   POST /api/auth/register
  * @desc    Register user (mock implementation)
  * @access  Public
  */
-router.post("/register", (req, res) => {
-    res.json({
-        success: true,
-        message: "Registration successful",
-        user: {
-            id: "user123",
-            name: req.body.name || "New User",
-            email: req.body.email || "new@example.com",
-        },
-    });
-});
+router.post("/register", register);
+
+/**
+ * @route   GET /api/auth/profile
+ * @desc    Get user profile
+ * @access  Private
+ */
+router.get("/profile", protect, getProfile);
 
 module.exports = router;

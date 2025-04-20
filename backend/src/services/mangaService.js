@@ -308,11 +308,31 @@ const mangaService = {
             try {
                 // Fetch from simulated external API
                 chaptersCache[id] = await fetchExternalChapters(id);
+                console.log(`Cached ${chaptersCache[id].length} chapters for manga ID ${id}`);
             } catch (error) {
                 console.error(`Error fetching chapters for manga ID ${id}:`, error);
                 throw new Error(`Failed to fetch chapters: ${error.message}`);
             }
         }
+
+        // Ensure we have at least some dummy data if the API fails
+        if (!chaptersCache[id] || chaptersCache[id].length === 0) {
+            console.log(`No chapters found for manga ID ${id}, using fallback data`);
+            // Use dummy data as fallback
+            if (DUMMY_CHAPTERS[id]) {
+                chaptersCache[id] = DUMMY_CHAPTERS[id];
+            } else {
+                // Create generic chapters if no dummy data exists for this manga
+                chaptersCache[id] = Array.from({ length: 5 }, (_, i) => ({
+                    id: `${id}-chapter-${i + 1}`,
+                    title: `Chapter ${i + 1}`,
+                    number: `${i + 1}`,
+                    date: new Date().toISOString().split("T")[0],
+                }));
+            }
+        }
+
+        console.log(`Returning ${chaptersCache[id].length} chapters for manga ID ${id}`);
 
         return {
             chapters: chaptersCache[id],
@@ -327,12 +347,54 @@ const mangaService = {
      */
     getChapterImages: async (id) => {
         console.log(`Fetching images for chapter ID ${id}`);
-        const images = DUMMY_CHAPTER_IMAGES[id];
 
-        if (!images) {
-            throw new Error(`Images for chapter ID ${id} not found`);
+        let images = DUMMY_CHAPTER_IMAGES[id];
+
+        // Extract manga ID and chapter number from the ID
+        // Expected format: manga-X-chapter-Y
+        const idParts = id.split("-");
+        let mangaId = null;
+        let chapterNum = null;
+
+        if (idParts.length >= 4) {
+            // Try to extract manga ID
+            mangaId = `${idParts[0]}-${idParts[1]}`;
+
+            // Try to extract chapter number
+            chapterNum = idParts[idParts.length - 1];
         }
 
+        if (!images || images.length === 0) {
+            console.log(`No images found for chapter ID ${id}, using fallback images`);
+
+            // Use manga and chapter specific fallback URLs
+            if (mangaId && chapterNum) {
+                const mangaTitle = DUMMY_MANGA_LIST.find((m) => m.id === mangaId)?.title || "Manga";
+
+                // Create fallback images with manga title and chapter number
+                const fallbackImages = Array.from({ length: 5 }, (_, i) => {
+                    const pageNum = i + 1;
+                    return `https://via.placeholder.com/800x1200/cccccc/000000?text=${encodeURIComponent(
+                        `${mangaTitle} Ch.${chapterNum} Pg.${pageNum}`
+                    )}`;
+                });
+
+                return { images: fallbackImages };
+            }
+
+            // Generic fallback
+            const fallbackImages = [
+                "https://via.placeholder.com/800x1200/cccccc/000000?text=Page1",
+                "https://via.placeholder.com/800x1200/cccccc/000000?text=Page2",
+                "https://via.placeholder.com/800x1200/cccccc/000000?text=Page3",
+                "https://via.placeholder.com/800x1200/cccccc/000000?text=Page4",
+                "https://via.placeholder.com/800x1200/cccccc/000000?text=Page5",
+            ];
+
+            return { images: fallbackImages };
+        }
+
+        console.log(`Returning ${images.length} images for chapter ID ${id}`);
         return { images };
     },
 };

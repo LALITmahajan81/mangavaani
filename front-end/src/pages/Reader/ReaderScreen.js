@@ -29,13 +29,14 @@ const ReaderScreen = ({ route, navigation }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [orientation, setOrientation] = useState("portrait");
+    const [imageErrors, setImageErrors] = useState({});
 
     const dispatch = useDispatch();
-    const { currentChapter, loading, error } = useSelector((state) => state.manga);
+    const { currentChapter, loading, error, currentManga } = useSelector((state) => state.manga);
     const { readingMode } = useSelector((state) => state.settings);
 
-    // Get chapter images (from API or mock)
-    const chapterImages = currentChapter?.images || mockChapterImages;
+    // Get chapter images (fallback to empty array if not available)
+    const chapterImages = currentChapter?.images || [];
 
     useEffect(() => {
         // Fetch chapter details from API
@@ -53,7 +54,12 @@ const ReaderScreen = ({ route, navigation }) => {
         return () => {
             StatusBar.setHidden(false);
         };
-    }, [dispatch, mangaId, chapterId, chapterImages.length]);
+    }, [dispatch, mangaId, chapterId]);
+
+    // Update total pages when chapter images change
+    useEffect(() => {
+        setTotalPages(chapterImages.length);
+    }, [chapterImages]);
 
     // Toggle reader controls visibility
     const toggleControls = () => {
@@ -95,6 +101,28 @@ const ReaderScreen = ({ route, navigation }) => {
                 goToNextPage();
             }
         }
+    };
+
+    // Generate fallback image URL using dummyimage.com
+    const getFallbackImageUrl = (index) => {
+        const pageNum = index + 1;
+        const title = mangaTitle || "Manga";
+        const chapter = chapterNumber || "1";
+
+        // Encode the text for URL
+        const encodedText = encodeURIComponent(`${title} Ch.${chapter} Pg.${pageNum}`);
+
+        // Return the dummyimage.com URL
+        return `https://dummyimage.com/800x1200/cccccc/000000&text=${encodedText}`;
+    };
+
+    // Handle image loading error
+    const handleImageError = (index) => {
+        setImageErrors((prev) => ({
+            ...prev,
+            [index]: true,
+        }));
+        console.log(`Error loading image at index ${index}, using fallback`);
     };
 
     // Page indicator component
@@ -168,6 +196,9 @@ const ReaderScreen = ({ route, navigation }) => {
 
     // Render page based on reading mode
     const renderPage = ({ item, index }) => {
+        // Use fallback image URL if there was an error loading the original image
+        const imageSource = imageErrors[index] ? { uri: getFallbackImageUrl(index) } : { uri: item };
+
         return (
             <TouchableOpacity
                 activeOpacity={1}
@@ -176,10 +207,14 @@ const ReaderScreen = ({ route, navigation }) => {
                 style={styles.pageContainer}
             >
                 <Image
-                    source={{ uri: item }}
+                    source={imageSource}
                     style={styles.pageImage}
                     resizeMode="contain"
+                    onError={() => handleImageError(index)}
                 />
+                <Text style={styles.pageNumber}>
+                    {index + 1} / {totalPages}
+                </Text>
             </TouchableOpacity>
         );
     };
@@ -210,7 +245,7 @@ const ReaderScreen = ({ route, navigation }) => {
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
-            initialScrollIndex={readingMode === "rightToLeft" ? totalPages - 1 : 0}
+            initialScrollIndex={0}
             getItemLayout={(_, index) => ({
                 length: width,
                 offset: width * index,
@@ -226,6 +261,44 @@ const ReaderScreen = ({ route, navigation }) => {
         />
     );
 
+    // If no images are available, render fallback images
+    if ((chapterImages.length === 0 || error) && !loading) {
+        // Generate fallback images (5 pages)
+        const fallbackImages = Array.from({ length: 5 }, (_, i) => getFallbackImageUrl(i));
+
+        // If in loaded state but no images, use the fallback images
+        if (!loading) {
+            return (
+                <View style={styles.container}>
+                    {showControls && <ControlsOverlay />}
+                    <FlatList
+                        data={fallbackImages}
+                        renderItem={({ item, index }) => (
+                            <TouchableOpacity
+                                activeOpacity={1}
+                                onPress={toggleControls}
+                                style={styles.pageContainer}
+                            >
+                                <Image
+                                    source={{ uri: item }}
+                                    style={styles.pageImage}
+                                    resizeMode="contain"
+                                />
+                                <Text style={styles.pageNumber}>
+                                    {index + 1} / {fallbackImages.length}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                        keyExtractor={(_, index) => `fallback-page-${index}`}
+                        horizontal
+                        pagingEnabled
+                        showsHorizontalScrollIndicator={false}
+                    />
+                </View>
+            );
+        }
+    }
+
     // Loading state
     if (loading) {
         return (
@@ -234,46 +307,15 @@ const ReaderScreen = ({ route, navigation }) => {
                     size="large"
                     color="#6C63FF"
                 />
-            </View>
-        );
-    }
-
-    // Error state
-    if (error) {
-        return (
-            <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{error}</Text>
-                <TouchableOpacity
-                    style={styles.retryButton}
-                    onPress={() => dispatch(fetchChapterDetails(mangaId, chapterId))}
-                >
-                    <Text style={styles.retryButtonText}>Retry</Text>
-                </TouchableOpacity>
+                <Text style={styles.loadingText}>Loading chapter...</Text>
             </View>
         );
     }
 
     return (
         <View style={styles.container}>
-            {/* Main reader based on reading mode */}
-            {readingMode === "vertical" ? renderVerticalReader() : renderPagedReader()}
-
-            {/* Controls overlay (conditionally rendered) */}
             {showControls && <ControlsOverlay />}
-
-            {/* Page indicator (always visible) */}
-            {!showControls && <PageIndicator />}
-
-            {/* Touch areas for page navigation in paged mode */}
-            {readingMode !== "vertical" && !showControls && (
-                <View style={styles.touchAreaContainer}>
-                    <TouchableOpacity
-                        style={styles.touchArea}
-                        activeOpacity={0}
-                        onPress={handlePress}
-                    />
-                </View>
-            )}
+            {readingMode === "vertical" ? renderVerticalReader() : renderPagedReader()}
         </View>
     );
 };
@@ -289,17 +331,22 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "#000000",
     },
+    loadingText: {
+        color: "#FFFFFF",
+        marginTop: 12,
+        fontSize: 16,
+    },
     errorContainer: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#000000",
-        padding: 16,
+        padding: 20,
     },
     errorText: {
-        color: "#FFFFFF",
+        color: "#FF6B6B",
+        marginBottom: 20,
         fontSize: 16,
-        marginBottom: 16,
         textAlign: "center",
     },
     retryButton: {
@@ -310,81 +357,95 @@ const styles = StyleSheet.create({
     },
     retryButtonText: {
         color: "#FFFFFF",
-        fontSize: 16,
         fontWeight: "bold",
     },
     pageContainer: {
-        width,
-        height,
+        width: Dimensions.get("window").width,
+        height: Dimensions.get("window").height,
         justifyContent: "center",
         alignItems: "center",
+        position: "relative",
     },
     pageImage: {
-        width: "100%",
-        height: "100%",
+        width: Dimensions.get("window").width,
+        height: Dimensions.get("window").height - 60,
+    },
+    pageNumber: {
+        position: "absolute",
+        bottom: 20,
+        right: 20,
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 15,
+        color: "#FFFFFF",
+        fontSize: 12,
     },
     controlsOverlay: {
         ...StyleSheet.absoluteFillObject,
         backgroundColor: "rgba(0, 0, 0, 0.7)",
-        justifyContent: "space-between",
+        zIndex: 10,
     },
     topBar: {
         flexDirection: "row",
         alignItems: "center",
-        padding: 16,
-        paddingTop: 40, // Account for status bar
+        paddingHorizontal: 16,
+        paddingTop: 50,
+        paddingBottom: 20,
     },
     closeButton: {
-        marginRight: 16,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "center",
+        alignItems: "center",
     },
     titleContainer: {
         flex: 1,
+        marginLeft: 16,
     },
     mangaTitle: {
         color: "#FFFFFF",
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: "bold",
     },
     chapterTitle: {
-        color: "#FFFFFF",
+        color: "#BDBDBD",
         fontSize: 14,
-        opacity: 0.8,
+        marginTop: 4,
     },
     bottomBar: {
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
         flexDirection: "row",
-        alignItems: "center",
         justifyContent: "space-between",
-        padding: 16,
-        paddingBottom: 32, // Extra padding for bottom
+        alignItems: "center",
+        paddingHorizontal: 16,
+        paddingVertical: 20,
     },
     navButton: {
         flexDirection: "row",
         alignItems: "center",
-        padding: 8,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
     },
     navButtonText: {
         color: "#FFFFFF",
-        fontSize: 16,
         marginHorizontal: 4,
     },
     pageIndicator: {
         backgroundColor: "rgba(0, 0, 0, 0.5)",
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        borderRadius: 16,
-        position: "absolute",
-        bottom: 16,
-        alignSelf: "center",
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
     },
     pageIndicatorText: {
         color: "#FFFFFF",
-        fontSize: 12,
-    },
-    touchAreaContainer: {
-        ...StyleSheet.absoluteFillObject,
-    },
-    touchArea: {
-        flex: 1,
     },
 });
 

@@ -53,7 +53,9 @@ const AppNavigator = () => {
                         paddingBottom: 6,
                     },
                     headerShown: false,
+                    tabBarHideOnKeyboard: true,
                 })}
+                detachInactiveScreens={true}
             >
                 <Tab.Screen
                     name="Home"
@@ -76,7 +78,7 @@ const AppNavigator = () => {
                     component={MangaNavigator}
                     options={{
                         tabBarButton: () => null,
-                        tabBarVisible: false,
+                        tabBarStyle: { display: "none" },
                     }}
                 />
             </Tab.Navigator>
